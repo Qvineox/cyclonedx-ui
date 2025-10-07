@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package cyclonedx_ui.sbom.v1;
+
+option go_package = "github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1;sbom_v1";
+
+import "api/proto/sbom/v1/vulnerability.proto";
+
+message Component {
+  string name = 1;
+
+  string group = 2;
+  string version = 3;
+  string description = 4;
+  string type = 5;
+  int32 level = 6;
+
+  string bom_ref = 7;
+  optional string purl = 8;
+
+  repeated Component children = 9;
+  repeated Vulnerability vulnerabilities = 10;
+}

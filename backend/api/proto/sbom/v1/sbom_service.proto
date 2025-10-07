@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package cyclonedx_ui.sbom.v1;
+
+option go_package = "github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1;sbom_v1";
+
+import "google/api/annotations.proto";
+import "api/proto/sbom/v1/component.proto";
+import "api/proto/sbom/v1/sbom.proto";
+
+service SbomService {
+  rpc Decompose(SBOMFile) returns (SBOMDecomposition) {
+    option (google.api.http) = {
+      post: "/api/v1/sbom/decompose"
+      body: "*"
+    };
+  };
+}
+
+message SBOMDecomposition {
+  Component graph = 1;
+  repeated Component ordered_components = 2; // ordered_components topologically sorted
+
+  uint64 total_nodes = 3;
+}

@@ -1,0 +1,297 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/proto/sbom/v1/component.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "SbomService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/v1/sbom/decompose": {
+      "post": {
+        "operationId": "SbomService_Decompose",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SBOMDecomposition"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SBOMFile"
+            }
+          }
+        ],
+        "tags": [
+          "SbomService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1Advisory": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "v1Affect": {
+      "type": "object",
+      "properties": {
+        "ranges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Range"
+          }
+        }
+      }
+    },
+    "v1Component": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "group": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "level": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "bomRef": {
+          "type": "string"
+        },
+        "purl": {
+          "type": "string"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Component"
+          }
+        },
+        "vulnerabilities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Vulnerability"
+          }
+        }
+      }
+    },
+    "v1Range": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "range": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "v1Rating": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/v1Source"
+        },
+        "score": {
+          "type": "number",
+          "format": "float"
+        },
+        "severity": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "vector": {
+          "type": "string"
+        },
+        "justification": {
+          "type": "string"
+        }
+      }
+    },
+    "v1SBOMDecomposition": {
+      "type": "object",
+      "properties": {
+        "graph": {
+          "$ref": "#/definitions/v1Component"
+        },
+        "orderedComponents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Component"
+          },
+          "title": "ordered_components topologically sorted"
+        },
+        "totalNodes": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "v1SBOMFile": {
+      "type": "object",
+      "properties": {
+        "fileName": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "data": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "v1Source": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "v1Vulnerability": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/definitions/v1Source"
+        },
+        "description": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "recommendation": {
+          "type": "string"
+        },
+        "ratings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Rating"
+          }
+        },
+        "cwes": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "advisories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Advisory"
+          }
+        },
+        "affects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Affect"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publishedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "rejectedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package cyclonedx_ui.sbom.v1;
+
+option go_package = "github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1;sbom_v1";
+
+message SBOMFile {
+  string file_name = 1;
+  optional string version = 2;
+
+  bytes data = 3;
+}
+
+message SBOMFiles {
+  repeated SBOMFile files = 1;
+}
+

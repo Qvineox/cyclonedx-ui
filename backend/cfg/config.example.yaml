@@ -1,0 +1,15 @@
+log_level: 0
+server:
+  http:
+    enable: true
+    host: 0.0.0.0
+    port: 8080
+  grpc:
+    enable: true
+    host: 0.0.0.0
+    port: 8081
+    reflect: true
+  health: true
+  origins:
+    - "*"
+  max_message_size: 104857600
