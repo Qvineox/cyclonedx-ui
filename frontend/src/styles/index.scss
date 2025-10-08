@@ -1,0 +1,60 @@
+@use "colors";
+
+#root {
+  display: flex;
+
+  width: 100vw;
+  height: 100vh;
+
+  background-color: colors.$background-color;
+}
+
+.inspect-page {
+  display: grid;
+  width: 100vw;
+
+  grid-template-columns: 25vw repeat(2, auto);
+  grid-template-rows: auto 75vh repeat(3, 1fr);
+
+  grid-column-gap: 3vw;
+  grid-row-gap: 1vh;
+
+  padding: 1vh 1vw;
+
+  .sbom-upload-form {
+    grid-area: 1 / 1 / 2 / 2;
+    padding: 1vh 0 0 1vw;
+  }
+
+  .sbom-summary {
+    grid-area: 2 / 1 / 4 / 2;
+    padding: 1vh 0 2vh 1vw;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .sbom-sunburst-graph {
+    grid-area: 1 / 2 / 3 / 4;
+    padding: 1vh;
+
+    border-left: 2px solid #283b5c;
+  }
+
+  .sbom-sunburst-graph-filters {
+    grid-area: 3 / 2 / 4 / 4;
+  }
+
+  .sbom-sunburst-graph-filter {
+    grid-area: 3 / 2 / 4 / 4;
+  }
+
+  .sbom-components-list-container {
+    grid-area: 4 / 1 / 5 / 4;
+  }
+
+  .sbom-vulnerabilities-list-container {
+    grid-area: 5 / 1 / 6 / 4;
+  }
+}

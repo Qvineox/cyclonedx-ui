@@ -12,6 +12,8 @@ type AppConfig struct {
 	LogLevel int `yaml:"log_level" env:"LOG_LEVEL" envDefault:"0"`
 
 	Server ServerConfig `yaml:"server" env-prefix:"SRV_"`
+
+	Cyclonedx CyclonedxConfig `yaml:"cyclonedx" env-prefix:"CDX_"`
 	//Database DatabaseConfig `yaml:"database" env-prefix:"DB_"`
 }
 
@@ -31,6 +33,10 @@ type HTTPConfig struct {
 
 	Host string `yaml:"host" env:"HOST" env-default:"0.0.0.0"`
 	Port uint64 `yaml:"port" env:"PORT" env-default:"8080"`
+}
+
+type CyclonedxConfig struct {
+	MinTransitiveSeverity float64 `yaml:"min_transitive_severity" env:"MIN_TRANSITIVE_SEVERITY" envDefault:"8.0"`
 }
 
 type GRPCConfig struct {

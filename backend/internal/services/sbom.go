@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
+	"log/slog"
 	"path/filepath"
+	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/Qvineox/cyclonedx-ui/cfg"
 	sbom_v1 "github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1"
 	"github.com/Qvineox/cyclonedx-ui/internal/entities/nodes"
 	"google.golang.org/grpc/codes"
@@ -15,32 +17,39 @@ import (
 )
 
 type SBOMServiceImpl struct {
+	config cfg.CyclonedxConfig
 }
 
-func NewSBOMServiceImpl() *SBOMServiceImpl {
-	return &SBOMServiceImpl{}
+func NewSBOMServiceImpl(config cfg.CyclonedxConfig) *SBOMServiceImpl {
+	return &SBOMServiceImpl{config: config}
 }
 
-func (service SBOMServiceImpl) Decompose(ctx context.Context, file *sbom_v1.SBOMFile) (*sbom_v1.SBOMDecomposition, error) {
-	if file.FileName == "" || len(file.Data) == 0 {
-		return nil, status.Error(codes.InvalidArgument, "file name is missing or file is empty")
+func (service SBOMServiceImpl) Decompose(ctx context.Context, options *sbom_v1.DecomposeOptions) (*sbom_v1.SBOMDecomposition, error) {
+	if len(options.Files) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "files not provided")
+	} else if len(options.Files) > 1 {
+		return nil, status.Error(codes.Unimplemented, "multiple files provided")
 	}
 
 	var format cdx.BOMFileFormat
+	var startedAt = time.Now()
 
-	switch filepath.Ext(file.FileName) {
+	switch filepath.Ext(options.Files[0].FileName) {
 	case ".json":
 		format = cdx.BOMFileFormatJSON
 	default:
+		slog.Error("unsupported sbom file format format", slog.String("format", filepath.Ext(file.FileName)))
 		return nil, status.Error(codes.Unimplemented, "file format not supported")
-
 	}
 
+	slog.Info("starting sbom decomposition...")
+
 	var sbom cdx.BOM
-	decoder := cdx.NewBOMDecoder(bytes.NewReader(file.Data), format)
+	decoder := cdx.NewBOMDecoder(bytes.NewReader(options.Files[0].Data), format)
 	err := decoder.Decode(&sbom)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to decode SBOM: "+err.Error())
+		slog.Error("failed to decode sbom", slog.String("file_name", options.Files[0].GetFileName()), slog.String("error", err.Error()))
+		return nil, status.Error(codes.Internal, "failed to decode sbom file: "+err.Error())
 	}
 
 	//	Parse the SBOM.
@@ -52,39 +61,37 @@ func (service SBOMServiceImpl) Decompose(ctx context.Context, file *sbom_v1.SBOM
 
 	graph, err := BuildDependencyGraph(&sbom)
 	if err != nil {
-		panic(err)
+		slog.Error("failed to build dependency graph", slog.String("file_name", options.Files[0].GetFileName()), slog.String("error", err.Error()))
+		return nil, status.Error(codes.Internal, "failed to build dependency graph: "+err.Error())
 	}
 
-	cleanGraph, err := graph.BuildCleanGraph()
+	if len(graph.CyclePaths) > 0 {
+		slog.Info("cycles detected in dependency graph",
+			slog.String("file_name", options.Files[0].GetFileName()),
+			slog.Uint64("cycle_count", uint64(len(graph.CyclePaths))),
+		)
+	}
+
+	cleanGraph, err := graph.BuildCleanGraph(service.config.MinTransitiveSeverity)
 	if err != nil {
-		panic(err)
+		slog.Error("failed to build dependency graph", slog.String("file_name", options.Files[0].GetFileName()), slog.String("error", err.Error()))
+		return nil, status.Error(codes.Internal, "failed to build dependency graph: "+err.Error())
 	}
 
-	// Пытаемся выполнить топологическую сортировку
-	ordered, err := graph.TopologicalSort()
-	if err != nil {
-		fmt.Printf("Ошибка при сортировке: %v\n", err)
-		fmt.Println("Пытаемся разорвать циклы и повторить...")
+	if options.OnlyVulnerable {
 
-		// Используем версию с разрывом циклов
-		ordered, err = graph.TopologicalSortWithCycleBreaking()
-		if err != nil {
-			panic(err)
-		}
 	}
 
-	fmt.Println("\nТопологический порядок после обработки циклов:")
-	for i, comp := range ordered {
-		fmt.Printf("%d. %s (%s)\n", i+1, comp.Name, comp.BOMRef)
-	}
-
-	return &sbom_v1.SBOMDecomposition{Graph: cleanGraph.ToProtoV1()}, nil
+	slog.Info("sbom decomposition finished successfully", slog.String("file_name", options.Files[0].GetFileName()), slog.Duration("time_taken_seconds", time.Since(startedAt).Round(time.Second)))
+	return cleanGraph.ToProtoDecompositionV1(), nil
 }
 
 func BuildDependencyGraph(sbom *cdx.BOM) (*nodes.DependencyGraph, error) {
 	graph := &nodes.DependencyGraph{
-		Nodes: make(map[string]*nodes.Node),
-		Vulns: *sbom.Vulnerabilities,
+		Nodes:           make(map[string]*nodes.Node),
+		DetectedCycles:  [][]string{},
+		CyclePaths:      [][]string{},
+		Vulnerabilities: *sbom.Vulnerabilities,
 	}
 
 	// save all vulnerabilities into map
@@ -101,13 +108,13 @@ func BuildDependencyGraph(sbom *cdx.BOM) (*nodes.DependencyGraph, error) {
 		}
 	}
 
-	// create nodes for all dependencies
 	for _, comp := range *sbom.Components {
+		vulns := componentVulns[comp.BOMRef]
+
 		graph.Nodes[comp.BOMRef] = &nodes.Node{
 			Component: &comp,
+			Vulns:     vulns,
 			Children:  []*nodes.Node{},
-			Vulns:     componentVulns[comp.BOMRef],
-			InCycle:   false,
 		}
 	}
 

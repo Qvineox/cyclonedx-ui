@@ -145,6 +145,17 @@
         }
       }
     },
+    "v1DependencyCycle": {
+      "type": "object",
+      "properties": {
+        "Path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "v1Range": {
       "type": "object",
       "properties": {
@@ -189,17 +200,24 @@
         "graph": {
           "$ref": "#/definitions/v1Component"
         },
-        "orderedComponents": {
+        "vulnerabilities": {
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1Component"
+            "$ref": "#/definitions/v1Vulnerability"
           },
-          "title": "ordered_components topologically sorted"
+          "title": "repeated string ordered_component_refs = 2; // ordered_components topologically sorted"
         },
         "totalNodes": {
           "type": "string",
           "format": "uint64"
+        },
+        "dependencyCycles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1DependencyCycle"
+          }
         }
       }
     },

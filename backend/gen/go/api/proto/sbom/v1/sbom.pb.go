@@ -81,27 +81,27 @@ func (x *SBOMFile) GetData() []byte {
 	return nil
 }
 
-type SBOMFiles struct {
+type DependencyCycle struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Files         []*SBOMFile            `protobuf:"bytes,1,rep,name=files,proto3" json:"files,omitempty"`
+	Path          []string               `protobuf:"bytes,1,rep,name=Path,proto3" json:"Path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *SBOMFiles) Reset() {
-	*x = SBOMFiles{}
+func (x *DependencyCycle) Reset() {
+	*x = DependencyCycle{}
 	mi := &file_api_proto_sbom_v1_sbom_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *SBOMFiles) String() string {
+func (x *DependencyCycle) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SBOMFiles) ProtoMessage() {}
+func (*DependencyCycle) ProtoMessage() {}
 
-func (x *SBOMFiles) ProtoReflect() protoreflect.Message {
+func (x *DependencyCycle) ProtoReflect() protoreflect.Message {
 	mi := &file_api_proto_sbom_v1_sbom_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -113,14 +113,14 @@ func (x *SBOMFiles) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SBOMFiles.ProtoReflect.Descriptor instead.
-func (*SBOMFiles) Descriptor() ([]byte, []int) {
+// Deprecated: Use DependencyCycle.ProtoReflect.Descriptor instead.
+func (*DependencyCycle) Descriptor() ([]byte, []int) {
 	return file_api_proto_sbom_v1_sbom_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *SBOMFiles) GetFiles() []*SBOMFile {
+func (x *DependencyCycle) GetPath() []string {
 	if x != nil {
-		return x.Files
+		return x.Path
 	}
 	return nil
 }
@@ -135,9 +135,9 @@ const file_api_proto_sbom_v1_sbom_proto_rawDesc = "" +
 	"\aversion\x18\x02 \x01(\tH\x00R\aversion\x88\x01\x01\x12\x12\n" +
 	"\x04data\x18\x03 \x01(\fR\x04dataB\n" +
 	"\n" +
-	"\b_version\"A\n" +
-	"\tSBOMFiles\x124\n" +
-	"\x05files\x18\x01 \x03(\v2\x1e.cyclonedx_ui.sbom.v1.SBOMFileR\x05filesBBZ@github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1;sbom_v1b\x06proto3"
+	"\b_version\"%\n" +
+	"\x0fDependencyCycle\x12\x12\n" +
+	"\x04Path\x18\x01 \x03(\tR\x04PathBBZ@github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1;sbom_v1b\x06proto3"
 
 var (
 	file_api_proto_sbom_v1_sbom_proto_rawDescOnce sync.Once
@@ -153,16 +153,15 @@ func file_api_proto_sbom_v1_sbom_proto_rawDescGZIP() []byte {
 
 var file_api_proto_sbom_v1_sbom_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_api_proto_sbom_v1_sbom_proto_goTypes = []any{
-	(*SBOMFile)(nil),  // 0: cyclonedx_ui.sbom.v1.SBOMFile
-	(*SBOMFiles)(nil), // 1: cyclonedx_ui.sbom.v1.SBOMFiles
+	(*SBOMFile)(nil),        // 0: cyclonedx_ui.sbom.v1.SBOMFile
+	(*DependencyCycle)(nil), // 1: cyclonedx_ui.sbom.v1.DependencyCycle
 }
 var file_api_proto_sbom_v1_sbom_proto_depIdxs = []int32{
-	0, // 0: cyclonedx_ui.sbom.v1.SBOMFiles.files:type_name -> cyclonedx_ui.sbom.v1.SBOMFile
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0, // [0:0] is the sub-list for method output_type
+	0, // [0:0] is the sub-list for method input_type
+	0, // [0:0] is the sub-list for extension type_name
+	0, // [0:0] is the sub-list for extension extendee
+	0, // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_sbom_v1_sbom_proto_init() }

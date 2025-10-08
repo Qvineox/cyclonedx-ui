@@ -12,4 +12,7 @@ server:
   health: true
   origins:
     - "*"
-  max_message_size: 104857600
+  max_message_size: 512000000
+cyclonedx:
+  min_transitive_severity: 5.0
+  max_ui_depth_level: 10

@@ -26,7 +26,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SbomServiceClient interface {
-	Decompose(ctx context.Context, in *SBOMFile, opts ...grpc.CallOption) (*SBOMDecomposition, error)
+	Decompose(ctx context.Context, in *DecomposeOptions, opts ...grpc.CallOption) (*SBOMDecomposition, error)
 }
 
 type sbomServiceClient struct {
@@ -37,7 +37,7 @@ func NewSbomServiceClient(cc grpc.ClientConnInterface) SbomServiceClient {
 	return &sbomServiceClient{cc}
 }
 
-func (c *sbomServiceClient) Decompose(ctx context.Context, in *SBOMFile, opts ...grpc.CallOption) (*SBOMDecomposition, error) {
+func (c *sbomServiceClient) Decompose(ctx context.Context, in *DecomposeOptions, opts ...grpc.CallOption) (*SBOMDecomposition, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SBOMDecomposition)
 	err := c.cc.Invoke(ctx, SbomService_Decompose_FullMethodName, in, out, cOpts...)
@@ -51,7 +51,7 @@ func (c *sbomServiceClient) Decompose(ctx context.Context, in *SBOMFile, opts ..
 // All implementations should embed UnimplementedSbomServiceServer
 // for forward compatibility.
 type SbomServiceServer interface {
-	Decompose(context.Context, *SBOMFile) (*SBOMDecomposition, error)
+	Decompose(context.Context, *DecomposeOptions) (*SBOMDecomposition, error)
 }
 
 // UnimplementedSbomServiceServer should be embedded to have
@@ -61,7 +61,7 @@ type SbomServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSbomServiceServer struct{}
 
-func (UnimplementedSbomServiceServer) Decompose(context.Context, *SBOMFile) (*SBOMDecomposition, error) {
+func (UnimplementedSbomServiceServer) Decompose(context.Context, *DecomposeOptions) (*SBOMDecomposition, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Decompose not implemented")
 }
 func (UnimplementedSbomServiceServer) testEmbeddedByValue() {}
@@ -85,7 +85,7 @@ func RegisterSbomServiceServer(s grpc.ServiceRegistrar, srv SbomServiceServer) {
 }
 
 func _SbomService_Decompose_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SBOMFile)
+	in := new(DecomposeOptions)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func _SbomService_Decompose_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: SbomService_Decompose_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SbomServiceServer).Decompose(ctx, req.(*SBOMFile))
+		return srv.(SbomServiceServer).Decompose(ctx, req.(*DecomposeOptions))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -12,36 +12,30 @@ type Node struct {
 	Vulns    []cdx.Vulnerability
 
 	// InCycle means node is present in cyclical dependency
-	InCycle   bool
-	IsVisited bool
+	InCycle            bool
+	IsVisited          bool
+	HasTransitiveVulns bool
 
 	Level int
 }
 
 func (n Node) ToProtoV1() *sbom_v1.Component {
 	p := sbom_v1.Component{
-		Name:            n.Component.Name,
-		Group:           n.Component.Group,
-		Version:         n.Component.Version,
-		Description:     n.Component.Description,
-		Type:            string(n.Component.Type),
-		BomRef:          n.Component.BOMRef,
-		Purl:            &n.Component.PackageURL,
-		Children:        make([]*sbom_v1.Component, len(n.Children)),
-		Vulnerabilities: make([]*sbom_v1.Vulnerability, len(n.Vulns)),
+		Name:               n.Component.Name,
+		Group:              n.Component.Group,
+		Version:            n.Component.Version,
+		Description:        n.Component.Description,
+		Type:               string(n.Component.Type),
+		BomRef:             n.Component.BOMRef,
+		Purl:               &n.Component.PackageURL,
+		Children:           make([]*sbom_v1.Component, len(n.Children)),
+		Vulnerabilities:    make([]*sbom_v1.Vulnerability, len(n.Vulns)),
+		HasTransitiveVulns: n.HasTransitiveVulns,
 	}
 
 	for i, child := range n.Children {
 		p.Children[i] = child.ToProtoV1()
 	}
-
-	// pkg:npm/@rgs-ui-v3/input@1.33.0 <-- pkg:npm/@rgs-ui/hooks-v3@4.0.9 <-- pkg:npm/@rgs-ui-v3/input@1.33.0
-	// pkg:npm/@rgs-ui-v3/input@1.33.0 <-- pkg:npm/@rgs-ui/hooks@0.14.11
-	// pkg:npm/@rgs-ui-v3/input@1.33.0 <-- pkg:npm/@rgs-ui-v3/tooltip@1.1.6
-
-	// pkg:npm/@rgs-ui-v3/input@1.33.0
-	// |
-	// |-- pkg:npm/@rgs-ui/hooks-v3@3.6.13
 
 	for i, vuln := range n.Vulns {
 		p.Vulnerabilities[i] = &sbom_v1.Vulnerability{
@@ -53,10 +47,6 @@ func (n Node) ToProtoV1() *sbom_v1.Component {
 			Affects:        make([]*sbom_v1.Affect, len(*vuln.Affects)),
 			Ratings:        make([]*sbom_v1.Rating, len(*vuln.Ratings)),
 			Cwes:           make([]int32, len(*vuln.CWEs)),
-			//CreatedAt:      timestamppb.New(vuln.Created),
-			//PublishedAt:    timestamppb.New(vuln.Published),
-			//UpdatedAt:      timestamppb.New(vuln.Updated),
-			//RejectedAt:     timestamppb.New(vuln.Rejected),
 		}
 
 		if vuln.Source != nil {

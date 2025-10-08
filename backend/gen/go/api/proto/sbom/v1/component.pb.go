@@ -22,19 +22,20 @@ const (
 )
 
 type Component struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Name            string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Group           string                 `protobuf:"bytes,2,opt,name=group,proto3" json:"group,omitempty"`
-	Version         string                 `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
-	Description     string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	Type            string                 `protobuf:"bytes,5,opt,name=type,proto3" json:"type,omitempty"`
-	Level           int32                  `protobuf:"varint,6,opt,name=level,proto3" json:"level,omitempty"`
-	BomRef          string                 `protobuf:"bytes,7,opt,name=bom_ref,json=bomRef,proto3" json:"bom_ref,omitempty"`
-	Purl            *string                `protobuf:"bytes,8,opt,name=purl,proto3,oneof" json:"purl,omitempty"`
-	Children        []*Component           `protobuf:"bytes,9,rep,name=children,proto3" json:"children,omitempty"`
-	Vulnerabilities []*Vulnerability       `protobuf:"bytes,10,rep,name=vulnerabilities,proto3" json:"vulnerabilities,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	Name               string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Group              string                 `protobuf:"bytes,2,opt,name=group,proto3" json:"group,omitempty"`
+	Version            string                 `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
+	Description        string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	Type               string                 `protobuf:"bytes,5,opt,name=type,proto3" json:"type,omitempty"`
+	Level              int32                  `protobuf:"varint,6,opt,name=level,proto3" json:"level,omitempty"`
+	BomRef             string                 `protobuf:"bytes,7,opt,name=bom_ref,json=bomRef,proto3" json:"bom_ref,omitempty"`
+	Purl               *string                `protobuf:"bytes,8,opt,name=purl,proto3,oneof" json:"purl,omitempty"`
+	Children           []*Component           `protobuf:"bytes,9,rep,name=children,proto3" json:"children,omitempty"`
+	Vulnerabilities    []*Vulnerability       `protobuf:"bytes,10,rep,name=vulnerabilities,proto3" json:"vulnerabilities,omitempty"`
+	HasTransitiveVulns bool                   `protobuf:"varint,11,opt,name=has_transitive_vulns,json=hasTransitiveVulns,proto3" json:"has_transitive_vulns,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *Component) Reset() {
@@ -137,11 +138,18 @@ func (x *Component) GetVulnerabilities() []*Vulnerability {
 	return nil
 }
 
+func (x *Component) GetHasTransitiveVulns() bool {
+	if x != nil {
+		return x.HasTransitiveVulns
+	}
+	return false
+}
+
 var File_api_proto_sbom_v1_component_proto protoreflect.FileDescriptor
 
 const file_api_proto_sbom_v1_component_proto_rawDesc = "" +
 	"\n" +
-	"!api/proto/sbom/v1/component.proto\x12\x14cyclonedx_ui.sbom.v1\x1a%api/proto/sbom/v1/vulnerability.proto\"\xe2\x02\n" +
+	"!api/proto/sbom/v1/component.proto\x12\x14cyclonedx_ui.sbom.v1\x1a%api/proto/sbom/v1/vulnerability.proto\"\x94\x03\n" +
 	"\tComponent\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05group\x18\x02 \x01(\tR\x05group\x12\x18\n" +
@@ -153,7 +161,8 @@ const file_api_proto_sbom_v1_component_proto_rawDesc = "" +
 	"\x04purl\x18\b \x01(\tH\x00R\x04purl\x88\x01\x01\x12;\n" +
 	"\bchildren\x18\t \x03(\v2\x1f.cyclonedx_ui.sbom.v1.ComponentR\bchildren\x12M\n" +
 	"\x0fvulnerabilities\x18\n" +
-	" \x03(\v2#.cyclonedx_ui.sbom.v1.VulnerabilityR\x0fvulnerabilitiesB\a\n" +
+	" \x03(\v2#.cyclonedx_ui.sbom.v1.VulnerabilityR\x0fvulnerabilities\x120\n" +
+	"\x14has_transitive_vulns\x18\v \x01(\bR\x12hasTransitiveVulnsB\a\n" +
 	"\x05_purlBBZ@github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1;sbom_v1b\x06proto3"
 
 var (

@@ -22,18 +22,88 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type DecomposeOptions struct {
+	state                  protoimpl.MessageState `protogen:"open.v1"`
+	Files                  []*SBOMFile            `protobuf:"bytes,1,rep,name=files,proto3" json:"files,omitempty"`
+	MaxDepth               uint64                 `protobuf:"varint,2,opt,name=max_depth,json=maxDepth,proto3" json:"max_depth,omitempty"`
+	OnlyVulnerable         bool                   `protobuf:"varint,3,opt,name=only_vulnerable,json=onlyVulnerable,proto3" json:"only_vulnerable,omitempty"`
+	CompactVulnerabilities bool                   `protobuf:"varint,4,opt,name=compact_vulnerabilities,json=compactVulnerabilities,proto3" json:"compact_vulnerabilities,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *DecomposeOptions) Reset() {
+	*x = DecomposeOptions{}
+	mi := &file_api_proto_sbom_v1_sbom_service_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DecomposeOptions) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecomposeOptions) ProtoMessage() {}
+
+func (x *DecomposeOptions) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_sbom_v1_sbom_service_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecomposeOptions.ProtoReflect.Descriptor instead.
+func (*DecomposeOptions) Descriptor() ([]byte, []int) {
+	return file_api_proto_sbom_v1_sbom_service_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *DecomposeOptions) GetFiles() []*SBOMFile {
+	if x != nil {
+		return x.Files
+	}
+	return nil
+}
+
+func (x *DecomposeOptions) GetMaxDepth() uint64 {
+	if x != nil {
+		return x.MaxDepth
+	}
+	return 0
+}
+
+func (x *DecomposeOptions) GetOnlyVulnerable() bool {
+	if x != nil {
+		return x.OnlyVulnerable
+	}
+	return false
+}
+
+func (x *DecomposeOptions) GetCompactVulnerabilities() bool {
+	if x != nil {
+		return x.CompactVulnerabilities
+	}
+	return false
+}
+
 type SBOMDecomposition struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	Graph             *Component             `protobuf:"bytes,1,opt,name=graph,proto3" json:"graph,omitempty"`
-	OrderedComponents []*Component           `protobuf:"bytes,2,rep,name=ordered_components,json=orderedComponents,proto3" json:"ordered_components,omitempty"` // ordered_components topologically sorted
-	TotalNodes        uint64                 `protobuf:"varint,3,opt,name=total_nodes,json=totalNodes,proto3" json:"total_nodes,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Graph *Component             `protobuf:"bytes,1,opt,name=graph,proto3" json:"graph,omitempty"`
+	// repeated string ordered_component_refs = 2; // ordered_components topologically sorted
+	Vulnerabilities  []*Vulnerability   `protobuf:"bytes,3,rep,name=vulnerabilities,proto3" json:"vulnerabilities,omitempty"`
+	TotalNodes       uint64             `protobuf:"varint,4,opt,name=total_nodes,json=totalNodes,proto3" json:"total_nodes,omitempty"`
+	DependencyCycles []*DependencyCycle `protobuf:"bytes,5,rep,name=dependency_cycles,json=dependencyCycles,proto3" json:"dependency_cycles,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *SBOMDecomposition) Reset() {
 	*x = SBOMDecomposition{}
-	mi := &file_api_proto_sbom_v1_sbom_service_proto_msgTypes[0]
+	mi := &file_api_proto_sbom_v1_sbom_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -45,7 +115,7 @@ func (x *SBOMDecomposition) String() string {
 func (*SBOMDecomposition) ProtoMessage() {}
 
 func (x *SBOMDecomposition) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_sbom_v1_sbom_service_proto_msgTypes[0]
+	mi := &file_api_proto_sbom_v1_sbom_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -58,7 +128,7 @@ func (x *SBOMDecomposition) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SBOMDecomposition.ProtoReflect.Descriptor instead.
 func (*SBOMDecomposition) Descriptor() ([]byte, []int) {
-	return file_api_proto_sbom_v1_sbom_service_proto_rawDescGZIP(), []int{0}
+	return file_api_proto_sbom_v1_sbom_service_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *SBOMDecomposition) GetGraph() *Component {
@@ -68,9 +138,9 @@ func (x *SBOMDecomposition) GetGraph() *Component {
 	return nil
 }
 
-func (x *SBOMDecomposition) GetOrderedComponents() []*Component {
+func (x *SBOMDecomposition) GetVulnerabilities() []*Vulnerability {
 	if x != nil {
-		return x.OrderedComponents
+		return x.Vulnerabilities
 	}
 	return nil
 }
@@ -82,18 +152,31 @@ func (x *SBOMDecomposition) GetTotalNodes() uint64 {
 	return 0
 }
 
+func (x *SBOMDecomposition) GetDependencyCycles() []*DependencyCycle {
+	if x != nil {
+		return x.DependencyCycles
+	}
+	return nil
+}
+
 var File_api_proto_sbom_v1_sbom_service_proto protoreflect.FileDescriptor
 
 const file_api_proto_sbom_v1_sbom_service_proto_rawDesc = "" +
 	"\n" +
-	"$api/proto/sbom/v1/sbom_service.proto\x12\x14cyclonedx_ui.sbom.v1\x1a\x1cgoogle/api/annotations.proto\x1a!api/proto/sbom/v1/component.proto\x1a\x1capi/proto/sbom/v1/sbom.proto\"\xbb\x01\n" +
+	"$api/proto/sbom/v1/sbom_service.proto\x12\x14cyclonedx_ui.sbom.v1\x1a\x1cgoogle/api/annotations.proto\x1a%api/proto/sbom/v1/vulnerability.proto\x1a!api/proto/sbom/v1/component.proto\x1a\x1capi/proto/sbom/v1/sbom.proto\"\xc7\x01\n" +
+	"\x10DecomposeOptions\x124\n" +
+	"\x05files\x18\x01 \x03(\v2\x1e.cyclonedx_ui.sbom.v1.SBOMFileR\x05files\x12\x1b\n" +
+	"\tmax_depth\x18\x02 \x01(\x04R\bmaxDepth\x12'\n" +
+	"\x0fonly_vulnerable\x18\x03 \x01(\bR\x0eonlyVulnerable\x127\n" +
+	"\x17compact_vulnerabilities\x18\x04 \x01(\bR\x16compactVulnerabilities\"\x8e\x02\n" +
 	"\x11SBOMDecomposition\x125\n" +
-	"\x05graph\x18\x01 \x01(\v2\x1f.cyclonedx_ui.sbom.v1.ComponentR\x05graph\x12N\n" +
-	"\x12ordered_components\x18\x02 \x03(\v2\x1f.cyclonedx_ui.sbom.v1.ComponentR\x11orderedComponents\x12\x1f\n" +
-	"\vtotal_nodes\x18\x03 \x01(\x04R\n" +
-	"totalNodes2\x86\x01\n" +
-	"\vSbomService\x12w\n" +
-	"\tDecompose\x12\x1e.cyclonedx_ui.sbom.v1.SBOMFile\x1a'.cyclonedx_ui.sbom.v1.SBOMDecomposition\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/api/v1/sbom/decomposeBBZ@github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1;sbom_v1b\x06proto3"
+	"\x05graph\x18\x01 \x01(\v2\x1f.cyclonedx_ui.sbom.v1.ComponentR\x05graph\x12M\n" +
+	"\x0fvulnerabilities\x18\x03 \x03(\v2#.cyclonedx_ui.sbom.v1.VulnerabilityR\x0fvulnerabilities\x12\x1f\n" +
+	"\vtotal_nodes\x18\x04 \x01(\x04R\n" +
+	"totalNodes\x12R\n" +
+	"\x11dependency_cycles\x18\x05 \x03(\v2%.cyclonedx_ui.sbom.v1.DependencyCycleR\x10dependencyCycles2\x8e\x01\n" +
+	"\vSbomService\x12\x7f\n" +
+	"\tDecompose\x12&.cyclonedx_ui.sbom.v1.DecomposeOptions\x1a'.cyclonedx_ui.sbom.v1.SBOMDecomposition\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/api/v1/sbom/decomposeBBZ@github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1;sbom_v1b\x06proto3"
 
 var (
 	file_api_proto_sbom_v1_sbom_service_proto_rawDescOnce sync.Once
@@ -107,22 +190,27 @@ func file_api_proto_sbom_v1_sbom_service_proto_rawDescGZIP() []byte {
 	return file_api_proto_sbom_v1_sbom_service_proto_rawDescData
 }
 
-var file_api_proto_sbom_v1_sbom_service_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_api_proto_sbom_v1_sbom_service_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_api_proto_sbom_v1_sbom_service_proto_goTypes = []any{
-	(*SBOMDecomposition)(nil), // 0: cyclonedx_ui.sbom.v1.SBOMDecomposition
-	(*Component)(nil),         // 1: cyclonedx_ui.sbom.v1.Component
+	(*DecomposeOptions)(nil),  // 0: cyclonedx_ui.sbom.v1.DecomposeOptions
+	(*SBOMDecomposition)(nil), // 1: cyclonedx_ui.sbom.v1.SBOMDecomposition
 	(*SBOMFile)(nil),          // 2: cyclonedx_ui.sbom.v1.SBOMFile
+	(*Component)(nil),         // 3: cyclonedx_ui.sbom.v1.Component
+	(*Vulnerability)(nil),     // 4: cyclonedx_ui.sbom.v1.Vulnerability
+	(*DependencyCycle)(nil),   // 5: cyclonedx_ui.sbom.v1.DependencyCycle
 }
 var file_api_proto_sbom_v1_sbom_service_proto_depIdxs = []int32{
-	1, // 0: cyclonedx_ui.sbom.v1.SBOMDecomposition.graph:type_name -> cyclonedx_ui.sbom.v1.Component
-	1, // 1: cyclonedx_ui.sbom.v1.SBOMDecomposition.ordered_components:type_name -> cyclonedx_ui.sbom.v1.Component
-	2, // 2: cyclonedx_ui.sbom.v1.SbomService.Decompose:input_type -> cyclonedx_ui.sbom.v1.SBOMFile
-	0, // 3: cyclonedx_ui.sbom.v1.SbomService.Decompose:output_type -> cyclonedx_ui.sbom.v1.SBOMDecomposition
-	3, // [3:4] is the sub-list for method output_type
-	2, // [2:3] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	2, // 0: cyclonedx_ui.sbom.v1.DecomposeOptions.files:type_name -> cyclonedx_ui.sbom.v1.SBOMFile
+	3, // 1: cyclonedx_ui.sbom.v1.SBOMDecomposition.graph:type_name -> cyclonedx_ui.sbom.v1.Component
+	4, // 2: cyclonedx_ui.sbom.v1.SBOMDecomposition.vulnerabilities:type_name -> cyclonedx_ui.sbom.v1.Vulnerability
+	5, // 3: cyclonedx_ui.sbom.v1.SBOMDecomposition.dependency_cycles:type_name -> cyclonedx_ui.sbom.v1.DependencyCycle
+	0, // 4: cyclonedx_ui.sbom.v1.SbomService.Decompose:input_type -> cyclonedx_ui.sbom.v1.DecomposeOptions
+	1, // 5: cyclonedx_ui.sbom.v1.SbomService.Decompose:output_type -> cyclonedx_ui.sbom.v1.SBOMDecomposition
+	5, // [5:6] is the sub-list for method output_type
+	4, // [4:5] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_sbom_v1_sbom_service_proto_init() }
@@ -130,6 +218,7 @@ func file_api_proto_sbom_v1_sbom_service_proto_init() {
 	if File_api_proto_sbom_v1_sbom_service_proto != nil {
 		return
 	}
+	file_api_proto_sbom_v1_vulnerability_proto_init()
 	file_api_proto_sbom_v1_component_proto_init()
 	file_api_proto_sbom_v1_sbom_proto_init()
 	type x struct{}
@@ -138,7 +227,7 @@ func file_api_proto_sbom_v1_sbom_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_sbom_v1_sbom_service_proto_rawDesc), len(file_api_proto_sbom_v1_sbom_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

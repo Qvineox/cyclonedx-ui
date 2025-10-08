@@ -15,6 +15,8 @@ import (
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
+
+	_ "google.golang.org/grpc/encoding/gzip"
 )
 
 func NewServer(ctx context.Context, config cfg.ServerConfig, services Services) (*grpc.Server, http.Handler, error) {
@@ -22,6 +24,7 @@ func NewServer(ctx context.Context, config cfg.ServerConfig, services Services) 
 
 	var grpcServer = grpc.NewServer(
 		grpc.MaxRecvMsgSize(int(config.MaxMessageSize)),
+		grpc.MaxSendMsgSize(int(config.MaxMessageSize)),
 		grpc.StreamInterceptor(
 			grpcMiddleware.ChainStreamServer(
 				recovery.StreamServerInterceptor(),

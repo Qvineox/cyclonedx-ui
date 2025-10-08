@@ -20,4 +20,6 @@ message Component {
 
   repeated Component children = 9;
   repeated Vulnerability vulnerabilities = 10;
+  
+  bool has_transitive_vulns = 11;
 }

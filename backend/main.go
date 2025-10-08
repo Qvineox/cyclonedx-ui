@@ -14,6 +14,7 @@ import (
 
 	"github.com/Qvineox/cyclonedx-ui/cfg"
 	"github.com/Qvineox/cyclonedx-ui/internal/server"
+	"github.com/Qvineox/cyclonedx-ui/internal/services"
 )
 
 func main() {
@@ -38,7 +39,10 @@ func main() {
 		Level: slog.Level(config.LogLevel),
 	})))
 
-	grpcSrv, restSrv, err := server.NewServer(ctx, config.Server, server.Services{})
+	grpcSrv, restSrv, err := server.NewServer(ctx, config.Server, server.Services{
+		Sbom: services.NewSBOMServiceImpl(config.Cyclonedx),
+	})
+
 	if err != nil {
 		panic("failed to create server: " + err.Error())
 	}
