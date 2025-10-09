@@ -9,6 +9,7 @@ Advanced SBOM visualization tool.
 
 ### Tooling
 - [ ] SBOM compiler/builder information
+- [ ] multiple SBOM files merging
 
 ### Visualization
 - dependency graphs
@@ -20,3 +21,4 @@ Advanced SBOM visualization tool.
 
 ### Vulnerability management
 - [ ] additional links to vulnerability databases (NVD, Aqua and others)
+- [ ] managing and aggregating vulnerabilities across multiple applications/modules in a single SBOM
