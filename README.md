@@ -22,3 +22,11 @@ Advanced SBOM visualization tool.
 ### Vulnerability management
 - [ ] additional links to vulnerability databases (NVD, Aqua and others)
 - [ ] managing and aggregating vulnerabilities across multiple applications/modules in a single SBOM
+
+### Repoting
+- vulnerability reporting in multiple formats
+  - [ ]  text-based for developers and management (txt, pdf, md, html)
+  - [ ]  for external consumption (json, cyclonedx)
+ 
+### Integrations
+- external systems integrations
