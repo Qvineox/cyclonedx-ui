@@ -38,7 +38,7 @@ func (service SBOMServiceImpl) Decompose(ctx context.Context, options *sbom_v1.D
 	case ".json":
 		format = cdx.BOMFileFormatJSON
 	default:
-		slog.Error("unsupported sbom file format format", slog.String("format", filepath.Ext(file.FileName)))
+		slog.Error("unsupported sbom file format format", slog.String("format", filepath.Ext(options.Files[0].GetFileName())))
 		return nil, status.Error(codes.Unimplemented, "file format not supported")
 	}
 
@@ -72,17 +72,18 @@ func (service SBOMServiceImpl) Decompose(ctx context.Context, options *sbom_v1.D
 		)
 	}
 
-	cleanGraph, err := graph.BuildCleanGraph(service.config.MinTransitiveSeverity)
+	cleanGraph, err := graph.BuildCleanGraph(service.config.MinTransitiveSeverity, options.GetOnlyVulnerable(), int(options.GetMaxDepth()))
 	if err != nil {
 		slog.Error("failed to build dependency graph", slog.String("file_name", options.Files[0].GetFileName()), slog.String("error", err.Error()))
 		return nil, status.Error(codes.Internal, "failed to build dependency graph: "+err.Error())
 	}
 
-	if options.OnlyVulnerable {
-
-	}
-
-	slog.Info("sbom decomposition finished successfully", slog.String("file_name", options.Files[0].GetFileName()), slog.Duration("time_taken_seconds", time.Since(startedAt).Round(time.Second)))
+	slog.Info("sbom decomposition finished successfully",
+		slog.String("file_name", options.Files[0].GetFileName()),
+		slog.Int("total_nodes_count", cleanGraph.TotalNodes),
+		slog.Int("total_cycles_resolved", len(cleanGraph.DetectedCycles)),
+		slog.Duration("time_taken_seconds", time.Since(startedAt).Round(time.Second)),
+	)
 	return cleanGraph.ToProtoDecompositionV1(), nil
 }
 

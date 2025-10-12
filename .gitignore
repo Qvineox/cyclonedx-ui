@@ -1,3 +1,4 @@
 .idea
 .run
 backend/test/examples
+node_modules

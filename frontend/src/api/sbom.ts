@@ -1,12 +1,5 @@
-interface ISBOMUploadRequest {
-    file_name: string
-    data: Array<byte>
-}
-
-export async function DecomposeSBOMFile(file: File) {
-    const reader = new FileReader();
-
-    let data = await blobToBase64(file)
+export async function DecomposeSBOMFile(file: File, onlyVulnerable: boolean, maxDepth: number) {
+    let data: string = await blobToBase64(file)
     return fetch("http://localhost:8080/api/v1/sbom/decompose", {
         method: 'POST',
         headers: {
@@ -14,19 +7,25 @@ export async function DecomposeSBOMFile(file: File) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            "data": data.split(',')[1],
-            "file_name": file.name
+            "only_vulnerable": onlyVulnerable,
+            "max_depth": maxDepth,
+            "files": [
+                {
+                    "data": data.split(',')[1],
+                    "file_name": file.name
+                }
+            ]
         })
     })
 }
 
-function blobToBase64(blob) {
+function blobToBase64(blob: File): Promise<string> {
     return new Promise((resolve, _) => {
         const reader = new FileReader();
 
-        reader.onloadend = () => resolve(reader.result);
+        reader.onloadend = () => resolve(reader.result as string);
         reader.onerror = (event) => {
-            console.error("error reading file:", event.target.error);
+            console.error("error reading file:", event.target?.error);
         };
 
         reader.readAsDataURL(blob);

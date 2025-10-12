@@ -1,8 +1,11 @@
 export interface ISBOMDecomposition {
     graph: IComponent
+
+    components: Array<IComponent>
     vulnerabilities: Array<IVulnerability>
+
     totalNodes: string
-    dependencyCycles: Array<string>
+    dependencyCycles: Array<IDependencyCycle>
 }
 
 export interface IComponent {
@@ -22,6 +25,8 @@ export interface IComponent {
     vulnerabilities: Array<IVulnerability>
 
     hasTransitiveVulns: boolean
+    maxSeverity: number
+    totalCveCount: number
 }
 
 export interface IVulnerability {
@@ -32,7 +37,8 @@ export interface IVulnerability {
     detail: string
     recommendation: string
 
-    ratings: Rating[]
+    maxRating: string
+    ratings: IRating[]
     cwes: number[]
 
     advisories: IAdvisory[]
@@ -42,7 +48,7 @@ export interface IVulnerability {
     updatedAt: string
 }
 
-export interface Rating {
+export interface IRating {
     source: ISource
     score?: number
 
@@ -64,6 +70,7 @@ export interface IAdvisory {
 }
 
 export interface IAffect {
+    ref: string
     ranges: Range[]
 }
 
@@ -71,4 +78,8 @@ export interface Range {
     version: string
     range: string
     status: string
+}
+
+export interface IDependencyCycle {
+    path: Array<string>
 }

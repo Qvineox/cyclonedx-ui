@@ -12,5 +12,5 @@ message SBOMFile {
 }
 
 message DependencyCycle {
-  repeated string Path = 1;
+  repeated string path = 1;
 }

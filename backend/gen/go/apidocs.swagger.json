@@ -39,7 +39,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1SBOMFile"
+              "$ref": "#/definitions/v1DecomposeOptions"
             }
           }
         ],
@@ -92,6 +92,9 @@
     "v1Affect": {
       "type": "object",
       "properties": {
+        "ref": {
+          "type": "string"
+        },
         "ranges": {
           "type": "array",
           "items": {
@@ -142,13 +145,43 @@
             "type": "object",
             "$ref": "#/definitions/v1Vulnerability"
           }
+        },
+        "hasTransitiveVulns": {
+          "type": "boolean"
+        },
+        "maxSeverity": {
+          "type": "number",
+          "format": "float"
+        },
+        "totalCveCount": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "v1DecomposeOptions": {
+      "type": "object",
+      "properties": {
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SBOMFile"
+          }
+        },
+        "maxDepth": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "onlyVulnerable": {
+          "type": "boolean"
         }
       }
     },
     "v1DependencyCycle": {
       "type": "object",
       "properties": {
-        "Path": {
+        "path": {
           "type": "array",
           "items": {
             "type": "string"
@@ -200,13 +233,19 @@
         "graph": {
           "$ref": "#/definitions/v1Component"
         },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Component"
+          }
+        },
         "vulnerabilities": {
           "type": "array",
           "items": {
             "type": "object",
             "$ref": "#/definitions/v1Vulnerability"
-          },
-          "title": "repeated string ordered_component_refs = 2; // ordered_components topologically sorted"
+          }
         },
         "totalNodes": {
           "type": "string",
@@ -264,6 +303,10 @@
         },
         "recommendation": {
           "type": "string"
+        },
+        "maxRating": {
+          "type": "number",
+          "format": "float"
         },
         "ratings": {
           "type": "array",

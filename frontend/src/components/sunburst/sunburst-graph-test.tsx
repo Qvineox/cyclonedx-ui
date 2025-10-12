@@ -7,7 +7,7 @@ interface SunburstChartProps {
     onNodeClick?: (component: IComponent) => void;
 }
 
-const maxLevelsToShow: number = 4;
+const maxLevelsToShow: number = 12;
 
 const SunburstChart: React.FC<SunburstChartProps> = ({rootComponent, onNodeClick}) => {
     const chartData = useMemo(() => {
@@ -21,7 +21,6 @@ const SunburstChart: React.FC<SunburstChartProps> = ({rootComponent, onNodeClick
                     convertToSunburstData(child, depth + 1)
                 ) || [];
             }
-
 
             return {
                 name: component.name,
@@ -139,17 +138,17 @@ const SunburstChart: React.FC<SunburstChartProps> = ({rootComponent, onNodeClick
     }
 
     return (
-        <div style={{width: '100%', height: '100%'}}>
+        <div className={"sbom-sunburst-graph-canvas"} style={{width: '100%', height: '100%'}}>
             <ReactECharts
                 option={option}
                 style={{height: '100%', width: '100%'}}
                 onEvents={chartEvents}
+                lazyUpdate={true}
                 opts={{renderer: 'canvas'}}
             />
         </div>
     );
 };
-
 
 const formatLabel = (params: any, component: IComponent): string => {
     const maxLength = params.depth <= 3 ? 25 : 15;
@@ -167,8 +166,14 @@ const truncateText = (text: string, maxLength: number): string => {
     return text.substring(0, maxLength - 3) + '...';
 };
 
-
 const generateTooltip = (component: IComponent, depth: number, vulnCount: number): string => {
+
+    let cves: string = "<ul>"
+    component.vulnerabilities.forEach((value) => {
+        cves += `<li>${value.id} (${value.maxRating})</li>`
+    })
+    cves += "</ul>"
+
     return `
         <div style="padding: 12px; min-width: 300px; font-family: Arial, sans-serif;">
           <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #333;">
@@ -184,11 +189,12 @@ const generateTooltip = (component: IComponent, depth: number, vulnCount: number
           </div>
           
           <div style="font-size: 12px; color: #666; line-height: 1.5;">
-            <div><strong>Group:</strong> ${component.group || 'N/A'}</div>
             <div><strong>Version:</strong> ${component.version || 'N/A'}</div>
             <div><strong>Type:</strong> ${component.type}</div>
+            <div><strong>Group:</strong> ${component.group || 'N/A'}</div>
             <div><strong>Level:</strong> ${component.level}</div>
-            <div><strong>Depth:</strong> ${depth}</div>
+            <div><strong>Max severity:</strong> ${component.maxSeverity}</div>
+            <div><strong>Total CVEs:</strong> ${component.totalCveCount}</div>
             <div><strong>Children:</strong> ${component.children?.length || 0}</div>
             
             ${component.description ?
@@ -198,11 +204,9 @@ const generateTooltip = (component: IComponent, depth: number, vulnCount: number
         ''
     }
             
-            ${component.vulnerabilities.map((value) => {
-        return `<div style="margin-top: 2px;">
-                        <strong>${value.id}</strong>
-                    </div>`
-    })}
+    ${
+        component.vulnerabilities.length > 0 ? `<br/>Vulnerabilities: ${cves}` : `<span/>`
+    }
             
             <div style="margin-top: 6px; font-size: 11px; color: #999;">
               <strong>BOM Ref:</strong> ${component.bomRef}
@@ -219,14 +223,27 @@ const getNodeColor = (component: IComponent): string => {
             return "#d9d9d9"
         case 'library':
             if (component.vulnerabilities.length > 0) {
-                return "#d88181"
+                const rating = component.vulnerabilities[0].maxRating
+                if (rating >= 7.5) {
+                    if (rating >= 9.5) {
+                        return "#701617F2"
+                    } else {
+                        return "#F44949B5"
+                    }
+                } else if (rating > 5) {
+                    return "#ED9757FF"
+                } else if (rating > 2.5) {
+                    return "#98D89BFF"
+                } else {
+                    return "#5799E4FF"
+                }
             } else if (component.hasTransitiveVulns) {
-                return "#d8bc81"
+                return "#D8BC81FF"
             }
     }
 
 
-    return "#9e9e9e"
+    return "#b8b0b0"
 }
 
 // Вспомогательная функция для получения типа из цвета

@@ -13,6 +13,7 @@ message Component {
   string version = 3;
   string description = 4;
   string type = 5;
+
   int32 level = 6;
 
   string bom_ref = 7;
@@ -20,6 +21,8 @@ message Component {
 
   repeated Component children = 9;
   repeated Vulnerability vulnerabilities = 10;
-  
+
   bool has_transitive_vulns = 11;
+  float max_severity = 12;
+  int32 total_cve_count = 13;
 }

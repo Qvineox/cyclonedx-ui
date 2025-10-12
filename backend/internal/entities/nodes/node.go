@@ -1,6 +1,9 @@
 package nodes
 
 import (
+	"cmp"
+	"slices"
+
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	sbom_v1 "github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1"
 )
@@ -12,9 +15,12 @@ type Node struct {
 	Vulns    []cdx.Vulnerability
 
 	// InCycle means node is present in cyclical dependency
-	InCycle            bool
-	IsVisited          bool
+	InCycle   bool
+	IsVisited bool
+
 	HasTransitiveVulns bool
+	MaxSeverity        float32
+	TotalCVECount      int
 
 	Level int
 }
@@ -28,6 +34,9 @@ func (n Node) ToProtoV1() *sbom_v1.Component {
 		Type:               string(n.Component.Type),
 		BomRef:             n.Component.BOMRef,
 		Purl:               &n.Component.PackageURL,
+		Level:              int32(n.Level),
+		MaxSeverity:        n.MaxSeverity,
+		TotalCveCount:      int32(n.TotalCVECount),
 		Children:           make([]*sbom_v1.Component, len(n.Children)),
 		Vulnerabilities:    make([]*sbom_v1.Vulnerability, len(n.Vulns)),
 		HasTransitiveVulns: n.HasTransitiveVulns,
@@ -46,7 +55,6 @@ func (n Node) ToProtoV1() *sbom_v1.Component {
 			Advisories:     make([]*sbom_v1.Advisory, len(*vuln.Advisories)),
 			Affects:        make([]*sbom_v1.Affect, len(*vuln.Affects)),
 			Ratings:        make([]*sbom_v1.Rating, len(*vuln.Ratings)),
-			Cwes:           make([]int32, len(*vuln.CWEs)),
 		}
 
 		if vuln.Source != nil {
@@ -73,6 +81,11 @@ func (n Node) ToProtoV1() *sbom_v1.Component {
 
 			if r.Score != nil {
 				s := float32(*r.Score)
+
+				if s > p.Vulnerabilities[i].GetMaxRating() {
+					p.Vulnerabilities[i].MaxRating = &s
+				}
+
 				pr.Score = &s
 			}
 
@@ -86,12 +99,17 @@ func (n Node) ToProtoV1() *sbom_v1.Component {
 			p.Vulnerabilities[i].Ratings[j] = pr
 		}
 
-		for j, v := range *vuln.CWEs {
-			p.Vulnerabilities[i].Cwes[j] = int32(v)
+		if vuln.CWEs != nil {
+			p.Vulnerabilities[i].Cwes = make([]int32, len(*vuln.CWEs))
+
+			for j, v := range *vuln.CWEs {
+				p.Vulnerabilities[i].Cwes[j] = int32(v)
+			}
 		}
 
 		for j, affect := range *vuln.Affects {
 			p.Vulnerabilities[i].Affects[j] = &sbom_v1.Affect{
+				Ref:    affect.Ref,
 				Ranges: make([]*sbom_v1.Range, len(*affect.Range)),
 			}
 
@@ -104,6 +122,10 @@ func (n Node) ToProtoV1() *sbom_v1.Component {
 			}
 		}
 	}
+
+	slices.SortFunc(p.Vulnerabilities, func(a, b *sbom_v1.Vulnerability) int {
+		return cmp.Compare(a.GetMaxRating(), b.GetMaxRating())
+	})
 
 	return &p
 }

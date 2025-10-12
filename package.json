@@ -1,5 +1,9 @@
 {
   "dependencies": {
-    "echarts-for-react": "^3.0.2"
+    "@protobuf-ts/runtime": "^2.11.1",
+    "echarts-for-react": "^3.0.2",
+    "grpc-web": "^2.0.2",
+    "require": "^2.4.20",
+    "ts-proto": "^2.7.7"
   }
 }

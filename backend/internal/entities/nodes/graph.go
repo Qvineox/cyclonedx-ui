@@ -1,8 +1,10 @@
 package nodes
 
 import (
+	"cmp"
 	"fmt"
 	"log/slog"
+	"slices"
 	"strings"
 	"time"
 
@@ -32,11 +34,17 @@ func (g *DependencyGraph) ToProtoV1() *sbom_v1.Component {
 
 func (g *DependencyGraph) ToProtoDecompositionV1() *sbom_v1.SBOMDecomposition {
 	p := sbom_v1.SBOMDecomposition{
-		Graph: g.ToProtoV1(),
-		// OrderedComponentRefs: g.TopologicalOrder,
+		Graph:            g.ToProtoV1(),
+		Components:       make([]*sbom_v1.Component, len(g.Nodes)),
 		Vulnerabilities:  make([]*sbom_v1.Vulnerability, len(g.Vulnerabilities)),
 		TotalNodes:       uint64(g.TotalNodes),
 		DependencyCycles: make([]*sbom_v1.DependencyCycle, len(g.DetectedCycles)),
+	}
+
+	var i = 0
+	for _, n := range g.Nodes {
+		p.Components[i] = n.ToProtoV1()
+		i++
 	}
 
 	for i, vuln := range g.Vulnerabilities {
@@ -48,7 +56,6 @@ func (g *DependencyGraph) ToProtoDecompositionV1() *sbom_v1.SBOMDecomposition {
 			Advisories:     make([]*sbom_v1.Advisory, len(*vuln.Advisories)),
 			Affects:        make([]*sbom_v1.Affect, len(*vuln.Affects)),
 			Ratings:        make([]*sbom_v1.Rating, len(*vuln.Ratings)),
-			Cwes:           make([]int32, len(*vuln.CWEs)),
 		}
 
 		//"2024-11-21T08:27:30+00:00"
@@ -124,6 +131,11 @@ func (g *DependencyGraph) ToProtoDecompositionV1() *sbom_v1.SBOMDecomposition {
 
 			if r.Score != nil {
 				s := float32(*r.Score)
+
+				if s > p.Vulnerabilities[i].GetMaxRating() {
+					p.Vulnerabilities[i].MaxRating = &s
+				}
+
 				pr.Score = &s
 			}
 
@@ -137,12 +149,17 @@ func (g *DependencyGraph) ToProtoDecompositionV1() *sbom_v1.SBOMDecomposition {
 			p.Vulnerabilities[i].Ratings[j] = pr
 		}
 
-		for j, v := range *vuln.CWEs {
-			p.Vulnerabilities[i].Cwes[j] = int32(v)
+		if vuln.CWEs != nil {
+			p.Vulnerabilities[i].Cwes = make([]int32, len(*vuln.CWEs))
+
+			for j, v := range *vuln.CWEs {
+				p.Vulnerabilities[i].Cwes[j] = int32(v)
+			}
 		}
 
 		for j, affect := range *vuln.Affects {
 			p.Vulnerabilities[i].Affects[j] = &sbom_v1.Affect{
+				Ref:    affect.Ref,
 				Ranges: make([]*sbom_v1.Range, len(*affect.Range)),
 			}
 
@@ -155,6 +172,10 @@ func (g *DependencyGraph) ToProtoDecompositionV1() *sbom_v1.SBOMDecomposition {
 			}
 		}
 	}
+
+	slices.SortFunc(p.Vulnerabilities, func(a, b *sbom_v1.Vulnerability) int {
+		return cmp.Compare(b.GetMaxRating(), a.GetMaxRating())
+	})
 
 	for i, cycle := range g.DetectedCycles {
 		p.DependencyCycles[i] = &sbom_v1.DependencyCycle{
@@ -369,8 +390,9 @@ func (g *DependencyGraph) PrintTree() {
 	printNode(g.Root, 0, make(map[string]bool))
 }
 
-func (g *DependencyGraph) BuildCleanGraph(minTransitiveSeverity float64) (*DependencyGraph, error) {
-	// Получаем топологический порядок
+func (g *DependencyGraph) BuildCleanGraph(minTransitiveSeverity float64, vulnerableOnly bool, maxDepth int) (*DependencyGraph, error) {
+	var nodes = make(map[string]*Node)
+
 	topologicalOrder, err := g.TopologicalSort()
 	if err != nil {
 		return nil, err
@@ -381,12 +403,14 @@ func (g *DependencyGraph) BuildCleanGraph(minTransitiveSeverity float64) (*Depen
 		topologicalRefs = append(topologicalRefs, comp.BOMRef)
 	}
 
-	var buildCleanTree func(node *Node, level int) (*Node, bool)
-	buildCleanTree = func(node *Node, level int) (*Node, bool) {
+	var buildCleanTree func(node *Node, level int) (*Node, bool, int, float32) // node, children has vulns?, children vulns count, max cve score
+	buildCleanTree = func(node *Node, level int) (*Node, bool, int, float32) {
 		cleanNode := &Node{
-			Component: node.Component,
-			Vulns:     node.Vulns,
-			Level:     level,
+			HasTransitiveVulns: node.HasTransitiveVulns,
+			TotalCVECount:      node.TotalCVECount,
+			Component:          node.Component,
+			Vulns:              node.Vulns,
+			Level:              level,
 		}
 
 		// check max severity score from all vulns in component
@@ -399,18 +423,39 @@ func (g *DependencyGraph) BuildCleanGraph(minTransitiveSeverity float64) (*Depen
 			}
 		}
 
-		for _, child := range node.Children {
-			node_, transVulns_ := buildCleanTree(child, level+1)
+		cleanNode.MaxSeverity = float32(maxDirectVulnsScore)
+		cleanNode.TotalCVECount = len(node.Vulns)
 
-			cleanNode.HasTransitiveVulns = transVulns_
-			cleanNode.Children = append(cleanNode.Children, node_)
+		if maxDepth > level+1 {
+			for _, child := range node.Children {
+				childNode, childNodeHasVulns, childCVECount, childMaxSeverity := buildCleanTree(child, level+1)
+
+				if childNodeHasVulns {
+					cleanNode.TotalCVECount += childCVECount
+					cleanNode.HasTransitiveVulns = true
+				}
+
+				if childMaxSeverity > cleanNode.MaxSeverity {
+					cleanNode.MaxSeverity = childMaxSeverity
+				}
+
+				if vulnerableOnly && !childNodeHasVulns {
+					continue
+				}
+
+				cleanNode.Children = append(cleanNode.Children, childNode)
+
+				nodes[childNode.Component.BOMRef] = childNode
+			}
 		}
 
-		return cleanNode, maxDirectVulnsScore >= minTransitiveSeverity
+		return cleanNode, cleanNode.HasTransitiveVulns || maxDirectVulnsScore >= minTransitiveSeverity, cleanNode.TotalCVECount, cleanNode.MaxSeverity
 	}
 
-	cleanRoot, hasTrans := buildCleanTree(g.Root, 0)
+	cleanRoot, hasTrans, totalCVEs, maxSeverity := buildCleanTree(g.Root, 0)
 	cleanRoot.HasTransitiveVulns = hasTrans
+	cleanRoot.TotalCVECount = totalCVEs
+	cleanRoot.MaxSeverity = maxSeverity
 
 	totalNodes := countNodes(cleanRoot)
 
@@ -421,7 +466,7 @@ func (g *DependencyGraph) BuildCleanGraph(minTransitiveSeverity float64) (*Depen
 
 	return &DependencyGraph{
 		Root:             cleanRoot,
-		Nodes:            g.Nodes,
+		Nodes:            nodes,
 		Vulnerabilities:  g.Vulnerabilities,
 		TotalNodes:       totalNodes,
 		TopologicalOrder: topologicalRefs,

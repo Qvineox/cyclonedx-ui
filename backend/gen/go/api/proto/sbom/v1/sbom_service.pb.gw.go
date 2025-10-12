@@ -37,7 +37,7 @@ var (
 
 func request_SbomService_Decompose_0(ctx context.Context, marshaler runtime.Marshaler, client SbomServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq SBOMFile
+		protoReq DecomposeOptions
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
@@ -52,7 +52,7 @@ func request_SbomService_Decompose_0(ctx context.Context, marshaler runtime.Mars
 
 func local_request_SbomService_Decompose_0(ctx context.Context, marshaler runtime.Marshaler, server SbomServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq SBOMFile
+		protoReq DecomposeOptions
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {

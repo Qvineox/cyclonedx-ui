@@ -83,7 +83,7 @@ func (x *SBOMFile) GetData() []byte {
 
 type DependencyCycle struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Path          []string               `protobuf:"bytes,1,rep,name=Path,proto3" json:"Path,omitempty"`
+	Path          []string               `protobuf:"bytes,1,rep,name=path,proto3" json:"path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -137,7 +137,7 @@ const file_api_proto_sbom_v1_sbom_proto_rawDesc = "" +
 	"\n" +
 	"\b_version\"%\n" +
 	"\x0fDependencyCycle\x12\x12\n" +
-	"\x04Path\x18\x01 \x03(\tR\x04PathBBZ@github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1;sbom_v1b\x06proto3"
+	"\x04path\x18\x01 \x03(\tR\x04pathBBZ@github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1;sbom_v1b\x06proto3"
 
 var (
 	file_api_proto_sbom_v1_sbom_proto_rawDescOnce sync.Once
