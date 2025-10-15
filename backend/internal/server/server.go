@@ -2,9 +2,6 @@ package server
 
 import (
 	"context"
-	"log/slog"
-	"net/http"
-
 	"github.com/Qvineox/cyclonedx-ui/cfg"
 	sbom_v1 "github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1"
 	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -15,6 +12,8 @@ import (
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
+	"log/slog"
+	"net/http"
 
 	_ "google.golang.org/grpc/encoding/gzip"
 )
@@ -58,6 +57,7 @@ func NewServer(ctx context.Context, config cfg.ServerConfig, services Services) 
 		AllowedMethods:   []string{"HEAD", "GET", "POST", "OPTIONS"},
 		AllowCredentials: true,
 		MaxAge:           86400,
+		Debug:            true,
 	}).Handler(gatewayMux)
 
 	return grpcServer, restServer, nil

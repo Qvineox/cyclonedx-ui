@@ -2,6 +2,7 @@ log_level: 0
 server:
   http:
     enable: true
+    web: true
     host: 0.0.0.0
     port: 8080
   grpc:

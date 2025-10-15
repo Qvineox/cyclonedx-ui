@@ -89,22 +89,25 @@ func (service SBOMServiceImpl) Decompose(ctx context.Context, options *sbom_v1.D
 
 func BuildDependencyGraph(sbom *cdx.BOM) (*nodes.DependencyGraph, error) {
 	graph := &nodes.DependencyGraph{
-		Nodes:           make(map[string]*nodes.Node),
-		DetectedCycles:  [][]string{},
-		CyclePaths:      [][]string{},
-		Vulnerabilities: *sbom.Vulnerabilities,
+		Nodes:          make(map[string]*nodes.Node),
+		DetectedCycles: [][]string{},
+		CyclePaths:     [][]string{},
 	}
 
 	// save all vulnerabilities into map
 	var componentVulns = make(map[string][]cdx.Vulnerability)
-	for _, vuln := range *sbom.Vulnerabilities {
-		for _, affected := range *vuln.Affects {
-			v, ok := componentVulns[affected.Ref]
-			if !ok {
-				componentVulns[affected.Ref] = make([]cdx.Vulnerability, 0)
-				componentVulns[affected.Ref] = append(componentVulns[affected.Ref], vuln)
-			} else {
-				componentVulns[affected.Ref] = append(v, vuln)
+	if sbom.Vulnerabilities != nil {
+		graph.Vulnerabilities = *sbom.Vulnerabilities
+
+		for _, vuln := range *sbom.Vulnerabilities {
+			for _, affected := range *vuln.Affects {
+				v, ok := componentVulns[affected.Ref]
+				if !ok {
+					componentVulns[affected.Ref] = make([]cdx.Vulnerability, 0)
+					componentVulns[affected.Ref] = append(componentVulns[affected.Ref], vuln)
+				} else {
+					componentVulns[affected.Ref] = append(v, vuln)
+				}
 			}
 		}
 	}

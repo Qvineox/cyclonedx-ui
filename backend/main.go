@@ -24,7 +24,7 @@ func main() {
 
 	var config *cfg.AppConfig
 
-	configPath := flags()
+	configPath, _ := flags()
 	if configPath == nil || len(*configPath) == 0 {
 		config = cfg.NewAppConfigFromEnv()
 	} else {
@@ -84,8 +84,9 @@ func main() {
 	<-ctx.Done()
 }
 
-func flags() (configFilePath *string) {
+func flags() (configFilePath *string, serveUIServer *bool) {
 	configFilePath = flag.String("config", "", "config file path")
+	serveUIServer = flag.Bool("web", false, "serve ui server")
 
 	// https://gobyexample.com/command-line-flags
 

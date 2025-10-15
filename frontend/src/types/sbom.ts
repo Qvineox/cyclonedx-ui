@@ -37,7 +37,7 @@ export interface IVulnerability {
     detail: string
     recommendation: string
 
-    maxRating: string
+    maxRating: number
     ratings: IRating[]
     cwes: number[]
 

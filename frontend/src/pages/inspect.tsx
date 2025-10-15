@@ -1,17 +1,17 @@
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import {Fragment, useEffect, useState} from "react";
+import React, {Fragment, useState} from "react";
 import type {ISBOMDecomposition} from "../types/sbom.ts";
-import SunburstChart from "../components/sunburst/sunburst-graph-test.tsx";
 import {InputGroup} from "react-bootstrap";
 
 import ComponentList from "../components/component-list/component-list.tsx";
 import VulnerabilityList from "../components/vulnerability-list/vulnerability-list.tsx";
 import {DecomposeSBOMFile} from "../api/sbom.ts";
 import Badge from "react-bootstrap/Badge";
+import SunburstChart from "../components/sunburst/sunburst-graph.tsx";
 
 export default function InspectPage() {
-    const [files, setFiles] = useState<Array<File>>([]);
+    const [files, setFiles] = useState<FileList>();
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
     const [onlyVulnerable, setOnlyVulnerable] = useState<boolean>(true)
@@ -19,17 +19,17 @@ export default function InspectPage() {
 
     const [billData, setBillData] = useState<ISBOMDecomposition | null>(null)
 
-    const handleFileChange = (evt) => {
-        console.debug(evt.target.files)
-
-        if (evt.target.files.length > 0) {
+    const handleFileChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+        if (evt.target.files && evt.target.files.length > 0) {
             setFiles(evt.target.files)
         }
     }
 
     const handleFileUpload = async () => {
-        if (files.length > 0) {
+        if (files && files.length > 0) {
             setIsLoading(true)
+
+            console.log("uploading file...")
 
             DecomposeSBOMFile(files[0], onlyVulnerable, maxDepth)
                 .then(response => {
@@ -45,10 +45,6 @@ export default function InspectPage() {
         }
     }
 
-    useEffect(() => {
-        console.debug(billData)
-    }, [billData]);
-
     return <div className="inspect-page">
         <div id={"sbom-upload"}>
             <Form.Group controlId="sbom-upload-form" className="mb-3">
@@ -56,7 +52,8 @@ export default function InspectPage() {
                 <Form.Control onChange={handleFileChange} type="file" multiple/>
             </Form.Group>
             <InputGroup className="mb-3">
-                <Button disabled={isLoading || files.length === 0} variant="primary" onClick={handleFileUpload}>
+                <Button disabled={isLoading || files && files.length === 0} variant="primary"
+                        onClick={handleFileUpload}>
                     {isLoading ? 'Loading…' : 'Upload new SBOM file'}
                 </Button>
 

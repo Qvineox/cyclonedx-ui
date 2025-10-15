@@ -2,3 +2,4 @@
 .run
 backend/test/examples
 node_modules
+dist

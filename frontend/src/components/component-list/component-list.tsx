@@ -21,7 +21,7 @@ const columns = [
         data: 'maxSeverity',
         title: 'Max severity',
         width: '7%',
-        render(data, type, row, meta) {
+        render(data: number) {
             return renderToString(renderMaxSeverityCell(data));
         },
     },

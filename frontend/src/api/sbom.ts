@@ -1,6 +1,6 @@
 export async function DecomposeSBOMFile(file: File, onlyVulnerable: boolean, maxDepth: number) {
     let data: string = await blobToBase64(file)
-    return fetch("http://localhost:8080/api/v1/sbom/decompose", {
+    return fetch("http://10.199.51.174:8080/api/v1/sbom/decompose", {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
