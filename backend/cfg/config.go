@@ -40,7 +40,7 @@ type HTTPConfig struct {
 }
 
 type CyclonedxConfig struct {
-	MinTransitiveSeverity float64 `yaml:"min_transitive_severity" env:"MIN_TRANSITIVE_SEVERITY" envDefault:"8.0"`
+	MinTransitiveSeverity *float64 `yaml:"min_transitive_severity" env:"MIN_TRANSITIVE_SEVERITY" envDefault:"8.0"`
 }
 
 type GRPCConfig struct {
@@ -110,7 +110,7 @@ func NewAppConfigFromEnv() *AppConfig {
 					slog.Bool("server reflection", config.Server.GRPC.Reflect),
 				),
 				slog.Group("cyclonedx analysis config",
-					slog.Float64("min transitive severity", config.CycloneDX.MinTransitiveSeverity),
+					slog.Float64("min transitive severity", *config.CycloneDX.MinTransitiveSeverity),
 				)),
 		)
 	}

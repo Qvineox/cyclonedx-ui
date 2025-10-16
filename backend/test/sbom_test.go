@@ -17,7 +17,8 @@ const file = "sbom.cdx.json"
 //const file = "cdxgen_fs_sbom.cdx.json"
 
 func TestBehavior(t *testing.T) {
-	s := services.NewSBOMServiceImpl(cfg.CyclonedxConfig{MinTransitiveSeverity: 1})
+	var minSeverity = 1.0
+	s := services.NewSBOMServiceImpl(cfg.CyclonedxConfig{MinTransitiveSeverity: &minSeverity})
 
 	testFile, err := os.ReadFile(filepath.Join("examples", file))
 	require.NoError(t, err)
