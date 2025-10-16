@@ -58,10 +58,14 @@ func NewServer(ctx context.Context, config cfg.ServerConfig, services Services) 
 		reflection.Register(grpcServer)
 	}
 
-	mux.Handle("/api/v1", gwMux)
+	mux.Handle("/api/v1/", gwMux)
 
 	if config.HTTP.Web {
 		mux.Handle("/", frontend.StaticFilesHandler())
+	}
+
+	if config.HTTP.Swagger {
+		mux.Handle("/swagger/", frontend.SwaggerHandler())
 	}
 
 	slog.Info("configuring cors parameters...")

@@ -6,6 +6,9 @@ import (
 	"net/http"
 )
 
+//go:embed swagger/*
+var swaggerFile embed.FS
+
 //go:embed dist/*
 var staticSite embed.FS
 
@@ -17,15 +20,21 @@ func StaticFilesHandler() http.HandlerFunc {
 	}
 
 	fileServer := http.FileServer(http.FS(distFS))
-	return fileServer.ServeHTTP
+	return func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/inspect":
+			r.URL.Path = "/"
+		}
 
-	//return func(w http.ResponseWriter, r *http.Request) {
-	//	path_ := path.Join("dist", r.URL.Path)
-	//
-	//	if _, err := distFS.Open(path_); err != nil {
-	//		r.URL.Path = "/"
-	//	}
-	//
-	//	fileServer.ServeHTTP(w, r)
-	//}
+		fileServer.ServeHTTP(w, r)
+	}
+}
+
+func SwaggerHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		data, _ := swaggerFile.ReadFile("swagger/swagger.json")
+
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write(data)
+	}
 }

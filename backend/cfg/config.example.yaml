@@ -3,6 +3,7 @@ server:
   http:
     enable: true
     web: true
+    swagger: true
     host: 0.0.0.0
     port: 8080
   grpc:

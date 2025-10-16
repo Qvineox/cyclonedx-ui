@@ -29,8 +29,9 @@ type ServerConfig struct {
 }
 
 type HTTPConfig struct {
-	Enable bool `yaml:"enable" env:"ENABLE" envDefault:"true"`
-	Web    bool `yaml:"web" env:"WEB" envDefault:"false"`
+	Enable  bool `yaml:"enable" env:"ENABLE" envDefault:"true"`
+	Web     bool `yaml:"web" env:"WEB" envDefault:"false"`
+	Swagger bool `yaml:"swagger" env:"SWAGGER" envDefault:"false"`
 
 	Host string `yaml:"host" env:"HOST" env-default:"0.0.0.0"`
 	Port uint64 `yaml:"port" env:"PORT" env-default:"8080"`

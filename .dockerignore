@@ -1,0 +1,5 @@
+.idea
+.run
+backend/test/
+node_modules
+dist
