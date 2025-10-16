@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/Qvineox/cyclonedx-ui/cfg"
 	sbom_v1 "github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1"
+	"github.com/Qvineox/cyclonedx-ui/pkg/frontend"
+	h "github.com/Qvineox/cyclonedx-ui/pkg/health"
 	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -19,7 +21,8 @@ import (
 )
 
 func NewServer(ctx context.Context, config cfg.ServerConfig, services Services) (*grpc.Server, http.Handler, error) {
-	var gatewayMux = runtime.NewServeMux()
+	var mux = http.NewServeMux()
+	var gwMux = runtime.NewServeMux()
 
 	var grpcServer = grpc.NewServer(
 		grpc.MaxRecvMsgSize(int(config.MaxMessageSize)),
@@ -35,19 +38,30 @@ func NewServer(ctx context.Context, config cfg.ServerConfig, services Services) 
 	)
 
 	sbom_v1.RegisterSbomServiceServer(grpcServer, services.Sbom)
-	err := sbom_v1.RegisterSbomServiceHandlerServer(ctx, gatewayMux, services.Sbom)
+	err := sbom_v1.RegisterSbomServiceHandlerServer(ctx, gwMux, services.Sbom)
 	if err != nil {
 		panic("failed to register sbom service: " + err.Error())
 	}
 
 	if config.Health {
 		slog.Warn("server health enabled")
-		grpc_health_v1.RegisterHealthServer(grpcServer, health.NewServer())
+		hs := health.NewServer()
+
+		grpc_health_v1.RegisterHealthServer(grpcServer, hs)
+
+		s := h.NewHealthService(hs)
+		mux.Handle("/api/v1/public/health/", s.Handler())
 	}
 
 	if config.GRPC.Reflect {
 		slog.Warn("server methods reflection enabled")
 		reflection.Register(grpcServer)
+	}
+
+	mux.Handle("/api/v1", gwMux)
+
+	if config.HTTP.Web {
+		mux.Handle("/", frontend.StaticFilesHandler())
 	}
 
 	slog.Info("configuring cors parameters...")
@@ -58,7 +72,7 @@ func NewServer(ctx context.Context, config cfg.ServerConfig, services Services) 
 		AllowCredentials: true,
 		MaxAge:           86400,
 		Debug:            true,
-	}).Handler(gatewayMux)
+	}).Handler(mux)
 
 	return grpcServer, restServer, nil
 }

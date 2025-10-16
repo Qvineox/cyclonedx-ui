@@ -4,7 +4,6 @@ import (
 	"embed"
 	"io/fs"
 	"net/http"
-	"path/filepath"
 )
 
 //go:embed dist/*
@@ -17,14 +16,16 @@ func StaticFilesHandler() http.HandlerFunc {
 		panic(err)
 	}
 
-	fileServer := http.FileServerFS(distFS)
-	return func(w http.ResponseWriter, r *http.Request) {
-		if _, err := distFS.Open(filepath.Join(r.URL.Path)); err != nil {
-			r.URL.Path = "/"
-		}
+	fileServer := http.FileServer(http.FS(distFS))
+	return fileServer.ServeHTTP
 
-		fileServer.ServeHTTP(w, r)
-	}
-
-	//return http.FileServerFS(distFS)
+	//return func(w http.ResponseWriter, r *http.Request) {
+	//	path_ := path.Join("dist", r.URL.Path)
+	//
+	//	if _, err := distFS.Open(path_); err != nil {
+	//		r.URL.Path = "/"
+	//	}
+	//
+	//	fileServer.ServeHTTP(w, r)
+	//}
 }
