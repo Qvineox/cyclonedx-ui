@@ -70,15 +70,20 @@ func NewServer(ctx context.Context, config cfg.ServerConfig, services Services) 
 	}
 
 	slog.Info("configuring cors parameters...")
-	restServer := cors.New(cors.Options{
+	c := cors.Options{
 		AllowedOrigins:   config.Origins,
 		AllowedHeaders:   []string{"*"},
 		AllowedMethods:   []string{"HEAD", "GET", "POST", "OPTIONS"},
 		AllowCredentials: true,
 		MaxAge:           86400,
-		Debug:            config.CorsDebug,
-		Logger:           corsLogger{},
-	}).Handler(mux)
+	}
+
+	if config.CorsDebug {
+		c.Debug = true
+		c.Logger = corsLogger{}
+	}
+
+	restServer := cors.New(c).Handler(mux)
 
 	return grpcServer, restServer, nil
 }
