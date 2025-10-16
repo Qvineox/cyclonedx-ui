@@ -1,0 +1,45 @@
+name: cyclonedx-ui
+
+services:
+  web:
+    build:
+      dockerfile: ./Dockerfile
+      context: .
+    user: "appuser:appuser"
+    security_opt:
+      - no-new-privileges
+    read_only: true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    deploy:
+      resources:
+        limits:
+          cpus: "4"
+          memory: 512M
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 30s
+    environment:
+      LOG_LEVEL: 0
+      SRV_HEALTH: true
+
+      SRV_HTTP_PORT: 5620
+      SRV_HTTP_ENABLE: true
+      SRV_HTTP_WEB: true
+      SRV_HTTP_SWAGGER: true
+
+      SRV_GRPC_PORT: 5621
+      SRV_GRPC_ENABLE: true
+      SRV_GRPC_REFLECT: true
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+    ports:
+      - "5620:5620"
+      - "5621:5621"
+    labels:
+      - traefik.enable=false
