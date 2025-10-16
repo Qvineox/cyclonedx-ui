@@ -17,5 +17,5 @@ server:
     - "*"
   max_message_size: 512000000
 cyclonedx:
-  min_transitive_severity: 1.0
+  min_transitive_severity: 8.0
   max_ui_depth_level: 10
