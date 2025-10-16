@@ -42,7 +42,10 @@ func (service SBOMServiceImpl) Decompose(ctx context.Context, options *sbom_v1.D
 		return nil, status.Error(codes.Unimplemented, "file format not supported")
 	}
 
-	slog.Info("starting sbom decomposition...")
+	slog.Info("starting sbom decomposition",
+		slog.Bool("only_vulnerable", options.GetOnlyVulnerable()),
+		slog.Uint64("max_depth", options.GetMaxDepth()),
+	)
 
 	var sbom cdx.BOM
 	decoder := cdx.NewBOMDecoder(bytes.NewReader(options.Files[0].Data), format)
