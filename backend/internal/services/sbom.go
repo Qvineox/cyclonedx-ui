@@ -75,7 +75,7 @@ func (service SBOMServiceImpl) Decompose(ctx context.Context, options *sbom_v1.D
 		)
 	}
 
-	cleanGraph, err := graph.BuildCleanGraph(*service.config.MinTransitiveSeverity, options.GetOnlyVulnerable(), int(options.GetMaxDepth()))
+	cleanGraph, err := graph.BuildCleanGraph(service.config.MinTransitiveSeverity, options.GetOnlyVulnerable(), int(options.GetMaxDepth()))
 	if err != nil {
 		slog.Error("failed to build dependency graph",
 			slog.String("file_name", options.Files[0].GetFileName()),

@@ -10,7 +10,7 @@ import (
 )
 
 type AppConfig struct {
-	LogLevel int `yaml:"log_level" env:"LOG_LEVEL" envDefault:"0"`
+	LogLevel int `yaml:"log_level" env:"LOG_LEVEL" env-default:"0"`
 
 	Server ServerConfig `yaml:"server" env-prefix:"SRV_"`
 
@@ -31,20 +31,20 @@ type ServerConfig struct {
 }
 
 type HTTPConfig struct {
-	Enable  bool `yaml:"enable" env:"ENABLE" envDefault:"true"`
-	Web     bool `yaml:"web" env:"WEB" envDefault:"false"`
-	Swagger bool `yaml:"swagger" env:"SWAGGER" envDefault:"false"`
+	Enable  bool `yaml:"enable" env:"ENABLE" env-default:"true"`
+	Web     bool `yaml:"web" env:"WEB" env-default:"false"`
+	Swagger bool `yaml:"swagger" env:"SWAGGER" env-default:"false"`
 
 	Host string `yaml:"host" env:"HOST" env-default:"0.0.0.0"`
 	Port uint64 `yaml:"port" env:"PORT" env-default:"8080"`
 }
 
 type CyclonedxConfig struct {
-	MinTransitiveSeverity *float64 `yaml:"min_transitive_severity" env:"MIN_TRANSITIVE_SEVERITY" envDefault:"8.0"`
+	MinTransitiveSeverity float64 `yaml:"min_transitive_severity" env:"MIN_TRANSITIVE_SEVERITY" env-default:"8.0"`
 }
 
 type GRPCConfig struct {
-	Enable bool `yaml:"enable" env:"ENABLE" envDefault:"false"`
+	Enable bool `yaml:"enable" env:"ENABLE" env-default:"false"`
 
 	Host string `yaml:"host" env:"HOST" env-default:"0.0.0.0"`
 	Port uint64 `yaml:"port" env:"PORT" env-default:"8081"`
@@ -110,7 +110,7 @@ func NewAppConfigFromEnv() *AppConfig {
 					slog.Bool("server reflection", config.Server.GRPC.Reflect),
 				),
 				slog.Group("cyclonedx analysis config",
-					slog.Float64("min transitive severity", *config.CycloneDX.MinTransitiveSeverity),
+					slog.Float64("min transitive severity", config.CycloneDX.MinTransitiveSeverity),
 				)),
 		)
 	}
