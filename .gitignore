@@ -3,3 +3,4 @@
 backend/test/examples
 node_modules
 dist
+deps.slices.json

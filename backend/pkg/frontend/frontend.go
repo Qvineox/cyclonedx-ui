@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-//go:embed dist
+//go:embed dist/*
 var staticSite embed.FS
 
 // StaticFilesHandler serves static file from SPA React app
