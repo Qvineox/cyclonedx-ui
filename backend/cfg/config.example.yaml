@@ -12,6 +12,7 @@ server:
     port: 8081
     reflect: true
   health: true
+  cors_debug: false
   origins:
     - "*"
   max_message_size: 512000000

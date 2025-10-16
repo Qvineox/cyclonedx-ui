@@ -40,7 +40,7 @@ func main() {
 	})))
 
 	grpcSrv, restSrv, err := server.NewServer(ctx, config.Server, server.Services{
-		Sbom: services.NewSBOMServiceImpl(config.Cyclonedx),
+		Sbom: services.NewSBOMServiceImpl(config.CycloneDX),
 	})
 
 	if err != nil {

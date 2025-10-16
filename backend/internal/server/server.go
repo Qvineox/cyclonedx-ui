@@ -16,6 +16,7 @@ import (
 	"google.golang.org/grpc/reflection"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	_ "google.golang.org/grpc/encoding/gzip"
 )
@@ -75,8 +76,17 @@ func NewServer(ctx context.Context, config cfg.ServerConfig, services Services) 
 		AllowedMethods:   []string{"HEAD", "GET", "POST", "OPTIONS"},
 		AllowCredentials: true,
 		MaxAge:           86400,
-		Debug:            true,
+		Debug:            config.CorsDebug,
+		Logger:           corsLogger{},
 	}).Handler(mux)
 
 	return grpcServer, restServer, nil
+}
+
+type corsLogger struct{}
+
+func (c corsLogger) Printf(s string, i ...interface{}) {
+	slog.Info("cors debug",
+		slog.String("message", strings.Trim(s, " ")),
+	)
 }

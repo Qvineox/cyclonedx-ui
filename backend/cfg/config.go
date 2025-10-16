@@ -13,7 +13,7 @@ type AppConfig struct {
 
 	Server ServerConfig `yaml:"server" env-prefix:"SRV_"`
 
-	Cyclonedx CyclonedxConfig `yaml:"cyclonedx" env-prefix:"CDX_"`
+	CycloneDX CyclonedxConfig `yaml:"cyclonedx" env-prefix:"CDX_"`
 	//Database DatabaseConfig `yaml:"database" env-prefix:"DB_"`
 }
 
@@ -23,7 +23,8 @@ type ServerConfig struct {
 
 	Health bool `yaml:"health" env:"HEALTH" env-default:"true"`
 
-	Origins []string `yaml:"origins" env:"ORIGINS" env-separator:";" env-default:"*"`
+	CorsDebug bool     `yaml:"cors_debug" env:"CORS_DEBUG" env-default:"false"`
+	Origins   []string `yaml:"origins" env:"ORIGINS" env-separator:";" env-default:"*"`
 
 	MaxMessageSize uint64 `yaml:"max_message_size" env:"MAX_MSG_SIZE" env-default:"104857600"`
 }
