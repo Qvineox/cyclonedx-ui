@@ -3,6 +3,8 @@ package services
 import (
 	"bytes"
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"errors"
 	"log/slog"
 	"path/filepath"
@@ -14,6 +16,7 @@ import (
 	"github.com/Qvineox/cyclonedx-ui/internal/entities/nodes"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type SBOMServiceImpl struct {
@@ -55,6 +58,9 @@ func (service SBOMServiceImpl) Decompose(ctx context.Context, options *sbom_v1.D
 		return nil, status.Error(codes.Internal, "failed to decode sbom file: "+err.Error())
 	}
 
+	hash := md5.Sum(options.Files[0].Data)
+	hashSize := hex.EncodeToString(hash[:])
+
 	//	Parse the SBOM.
 	//	Create a map for nodes by bom-ref.
 	//	For each component, create a node.
@@ -91,7 +97,14 @@ func (service SBOMServiceImpl) Decompose(ctx context.Context, options *sbom_v1.D
 		slog.Int("total_cycles_resolved", len(cleanGraph.DetectedCycles)),
 		slog.Duration("time_taken_seconds", time.Since(startedAt).Round(time.Second)),
 	)
-	return cleanGraph.ToProtoDecompositionV1(), nil
+
+	pd := cleanGraph.ToProtoDecompositionV1()
+	pd.MetaData = GetMetaInfo(&sbom)
+
+	pd.SerialNumber = &sbom.SerialNumber
+	pd.Md5 = &hashSize
+
+	return pd, nil
 }
 
 func BuildDependencyGraph(sbom *cdx.BOM) (*nodes.DependencyGraph, error) {
@@ -173,4 +186,81 @@ func BuildDependencyGraph(sbom *cdx.BOM) (*nodes.DependencyGraph, error) {
 	//}
 
 	return graph, nil
+}
+
+func GetMetaInfo(sbom *cdx.BOM) *sbom_v1.Meta {
+	m := &sbom_v1.Meta{
+		BomVersion: string(rune(sbom.SpecVersion)),
+		Properties: make(map[string]string),
+	}
+
+	if sbom.Metadata.Tools != nil {
+		if sbom.Metadata.Tools.Components != nil {
+			for _, c := range *sbom.Metadata.Tools.Components {
+				m.Tools = append(m.Tools, &sbom_v1.Component{
+					Name:        c.Name,
+					Group:       c.Group,
+					Version:     c.Version,
+					Description: c.Description,
+					Type:        string(c.Type),
+					BomRef:      c.BOMRef,
+					Purl:        &c.PackageURL,
+				})
+			}
+		}
+
+		if sbom.Metadata.Tools.Services != nil {
+			// todo: add services
+		}
+	}
+
+	if sbom.Metadata.Component != nil {
+		c := sbom.Metadata.Component
+
+		m.Project = &sbom_v1.Component{
+			Name:        c.Name,
+			Group:       c.Group,
+			Version:     c.Version,
+			Description: c.Description,
+			Type:        string(c.Type),
+			BomRef:      c.BOMRef,
+			Purl:        &c.PackageURL,
+		}
+	}
+
+	if sbom.Metadata.Authors != nil {
+		for _, a := range *sbom.Metadata.Authors {
+			m.Authors = append(m.Authors, &sbom_v1.Contact{
+				Email:  a.Email,
+				Name:   a.Name,
+				Phone:  a.Phone,
+				BomRef: a.BOMRef,
+			})
+		}
+	}
+
+	if sbom.Metadata.Lifecycles != nil {
+		for _, l := range *sbom.Metadata.Lifecycles {
+			m.Lifecycles = append(m.Lifecycles, &sbom_v1.Lifecycle{
+				Phase:       string(l.Phase),
+				Name:        l.Name,
+				Description: l.Description,
+			})
+		}
+	}
+
+	if sbom.Metadata.Properties != nil {
+		for _, v := range *sbom.Metadata.Properties {
+			m.Properties[v.Name] = v.Value
+		}
+	}
+
+	createdAt, err := time.Parse(time.RFC3339, sbom.Metadata.Timestamp)
+	if err != nil {
+		slog.Warn("failed to parse timestamp", slog.String("timestamp", sbom.Metadata.Timestamp))
+	} else {
+		m.CreatedAt = timestamppb.New(createdAt)
+	}
+
+	return m
 }

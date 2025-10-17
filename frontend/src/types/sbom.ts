@@ -1,4 +1,10 @@
 export interface ISBOMDecomposition {
+    id: number | undefined;
+    serialNumber: string | undefined;
+    md5: string | undefined;
+
+    metaData: IMeta | undefined;
+
     graph: IComponent
 
     components: Array<IComponent>
@@ -49,8 +55,8 @@ export interface IVulnerability {
 }
 
 export interface IRating {
-    source: ISource
-    score?: number
+    source: ISource | undefined;
+    score: number | undefined;
 
     severity: string
 
@@ -82,4 +88,36 @@ export interface Range {
 
 export interface IDependencyCycle {
     path: Array<string>
+}
+
+export interface IMeta {
+    bomVersion: string;
+
+    tools: Array<IComponent>;
+    project: IComponent;
+
+    authors: IContact[];
+    lifecycles: ILifecycle[];
+
+    properties: { [key: string]: string };
+
+    createdAt: Date | undefined;
+}
+
+export interface IMeta_PropertiesEntry {
+    key: string;
+    value: string;
+}
+
+export interface ILifecycle {
+    phase: string;
+    name: string;
+    description: string;
+}
+
+export interface IContact {
+    email: string;
+    name: string;
+    phone: string;
+    bomRef: string;
 }

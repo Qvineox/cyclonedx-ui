@@ -159,6 +159,23 @@
         }
       }
     },
+    "v1Contact": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "bomRef": {
+          "type": "string"
+        }
+      }
+    },
     "v1DecomposeOptions": {
       "type": "object",
       "properties": {
@@ -186,6 +203,62 @@
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "v1Lifecycle": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "v1Meta": {
+      "type": "object",
+      "properties": {
+        "bomVersion": {
+          "type": "string"
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Component"
+          }
+        },
+        "project": {
+          "$ref": "#/definitions/v1Component"
+        },
+        "authors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Contact"
+          }
+        },
+        "lifecycles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Lifecycle"
+          }
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -230,6 +303,19 @@
     "v1SBOMDecomposition": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "serialNumber": {
+          "type": "string"
+        },
+        "md5": {
+          "type": "string"
+        },
+        "metaData": {
+          "$ref": "#/definitions/v1Meta"
+        },
         "graph": {
           "$ref": "#/definitions/v1Component"
         },

@@ -124,7 +124,7 @@ func (n Node) ToProtoV1() *sbom_v1.Component {
 	}
 
 	slices.SortFunc(p.Vulnerabilities, func(a, b *sbom_v1.Vulnerability) int {
-		return cmp.Compare(a.GetMaxRating(), b.GetMaxRating())
+		return cmp.Compare(b.GetMaxRating(), a.GetMaxRating())
 	})
 
 	return &p

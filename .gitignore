@@ -4,3 +4,7 @@ backend/test/examples
 node_modules
 dist
 deps.slices.json
+
+/backend/pkg/frontend/swagger/apidocs.swagger.json
+
+*.cdx.*

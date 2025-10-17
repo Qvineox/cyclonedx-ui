@@ -220,6 +220,7 @@ const getNodeColor = (component: IComponent): string => {
         case 'application':
         case 'file':
             return "#d9d9d9"
+        case 'framework':
         case 'library':
             if (component.vulnerabilities.length > 0) {
                 const rating = component.vulnerabilities[0].maxRating
@@ -234,6 +235,7 @@ const getNodeColor = (component: IComponent): string => {
                 } else if (rating > 2.5) {
                     return "#98D89BFF"
                 } else {
+                    console.log(component.vulnerabilities)
                     return "#5799E4FF"
                 }
             } else if (component.hasTransitiveVulns) {

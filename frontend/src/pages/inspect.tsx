@@ -10,7 +10,7 @@ import {DecomposeSBOMFile} from "../api/sbom.ts";
 import Badge from "react-bootstrap/Badge";
 import SunburstChart from "../components/sunburst/sunburst-graph.tsx";
 
-export default function InspectPage() {
+export function InspectPage() {
     const [files, setFiles] = useState<FileList>();
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -84,6 +84,40 @@ export default function InspectPage() {
         {
             billData ? <Fragment>
                 <div id={"sbom-summary"}>
+                    {
+                        billData.metaData ? <Fragment>
+                            <b>SBOM info</b>
+                            <p>ID: <code>{billData.id || "N/A"}</code></p>
+                            <p>Serial number: <code>{billData.serialNumber || "N/A"}</code></p>
+                            <p>MD5: <code>{billData.md5 || "N/A"}</code></p>
+                            <p>Timestamp: <code>{billData.metaData.createdAt?.toString() || "N/A"}</code></p>
+                            <hr/>
+                            <b>SBOM metadata</b>
+                            {
+                                billData.metaData.project ? <Fragment>
+                                    <p>Name: <code>{billData.metaData.project.name}</code></p>
+                                    <p>Version: <code>{billData.metaData.project.version || "N/A"}</code></p>
+                                    <p>Type: <code>{billData.metaData.project.type || "N/A"}</code></p>
+                                    <hr/>
+                                </Fragment> : <Fragment/>
+                            }
+                            {
+                                billData.metaData.tools.length > 0 ? <Fragment>
+                                    <b>SBOM tools</b>
+                                    <ul>
+                                        {
+                                            billData.metaData.tools.map((value, index) => {
+                                                return <li key={index}>
+                                                    <code>{value.name}{value.version ? `@${value.version}` : ""}</code>
+                                                </li>
+                                            })
+                                        }
+                                    </ul>
+                                    <hr/>
+                                </Fragment> : <Fragment/>
+                            }
+                        </Fragment> : <Fragment/>
+                    }
                     <b>SBOM summary</b>
                     <p>Total nodes count: {billData.totalNodes}</p>
                     <p>Total unique components count: {billData.components.length}</p>

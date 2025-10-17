@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package cyclonedx_ui.sbom.v1;
+
+option go_package = "github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1;sbom_v1";
+
+import "api/proto/sbom/v1/component.proto";
+import "google/protobuf/timestamp.proto";
+
+message Meta {
+  string bom_version = 1;
+
+  repeated Component tools = 2;
+  optional Component project = 3;
+
+  repeated Contact authors = 4;
+  repeated Lifecycle lifecycles = 5;
+
+  map<string, string> properties = 6;
+
+  optional google.protobuf.Timestamp created_at = 14;
+}
+
+message Lifecycle {
+  string phase = 1;
+  string name = 2;
+  string description = 3;
+}
+
+message Contact {
+  string email = 1;
+  string name = 2;
+  string phone = 3;
+  string bom_ref = 4;
+}

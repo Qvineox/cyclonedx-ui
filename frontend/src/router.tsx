@@ -1,6 +1,6 @@
 import {createBrowserRouter, Navigate} from "react-router-dom";
 import RootLayout from "./layout/root.tsx";
-import InspectPage from "./pages/inspect.tsx";
+import {InspectPage} from "./pages/inspect.tsx";
 
 const router = createBrowserRouter([
     {

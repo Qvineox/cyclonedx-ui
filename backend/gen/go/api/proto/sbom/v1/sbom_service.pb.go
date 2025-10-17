@@ -84,11 +84,15 @@ func (x *DecomposeOptions) GetOnlyVulnerable() bool {
 
 type SBOMDecomposition struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
-	Graph            *Component             `protobuf:"bytes,1,opt,name=graph,proto3" json:"graph,omitempty"`
-	Components       []*Component           `protobuf:"bytes,2,rep,name=components,proto3" json:"components,omitempty"`
-	Vulnerabilities  []*Vulnerability       `protobuf:"bytes,3,rep,name=vulnerabilities,proto3" json:"vulnerabilities,omitempty"`
-	TotalNodes       uint64                 `protobuf:"varint,4,opt,name=total_nodes,json=totalNodes,proto3" json:"total_nodes,omitempty"`
-	DependencyCycles []*DependencyCycle     `protobuf:"bytes,5,rep,name=dependency_cycles,json=dependencyCycles,proto3" json:"dependency_cycles,omitempty"`
+	Id               *uint64                `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	SerialNumber     *string                `protobuf:"bytes,2,opt,name=serial_number,json=serialNumber,proto3,oneof" json:"serial_number,omitempty"`
+	Md5              *string                `protobuf:"bytes,3,opt,name=md5,proto3,oneof" json:"md5,omitempty"`
+	MetaData         *Meta                  `protobuf:"bytes,4,opt,name=meta_data,json=metaData,proto3" json:"meta_data,omitempty"`
+	Graph            *Component             `protobuf:"bytes,5,opt,name=graph,proto3" json:"graph,omitempty"`
+	Components       []*Component           `protobuf:"bytes,6,rep,name=components,proto3" json:"components,omitempty"`
+	Vulnerabilities  []*Vulnerability       `protobuf:"bytes,7,rep,name=vulnerabilities,proto3" json:"vulnerabilities,omitempty"`
+	TotalNodes       uint64                 `protobuf:"varint,8,opt,name=total_nodes,json=totalNodes,proto3" json:"total_nodes,omitempty"`
+	DependencyCycles []*DependencyCycle     `protobuf:"bytes,9,rep,name=dependency_cycles,json=dependencyCycles,proto3" json:"dependency_cycles,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -121,6 +125,34 @@ func (x *SBOMDecomposition) ProtoReflect() protoreflect.Message {
 // Deprecated: Use SBOMDecomposition.ProtoReflect.Descriptor instead.
 func (*SBOMDecomposition) Descriptor() ([]byte, []int) {
 	return file_api_proto_sbom_v1_sbom_service_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *SBOMDecomposition) GetId() uint64 {
+	if x != nil && x.Id != nil {
+		return *x.Id
+	}
+	return 0
+}
+
+func (x *SBOMDecomposition) GetSerialNumber() string {
+	if x != nil && x.SerialNumber != nil {
+		return *x.SerialNumber
+	}
+	return ""
+}
+
+func (x *SBOMDecomposition) GetMd5() string {
+	if x != nil && x.Md5 != nil {
+		return *x.Md5
+	}
+	return ""
+}
+
+func (x *SBOMDecomposition) GetMetaData() *Meta {
+	if x != nil {
+		return x.MetaData
+	}
+	return nil
 }
 
 func (x *SBOMDecomposition) GetGraph() *Component {
@@ -162,20 +194,27 @@ var File_api_proto_sbom_v1_sbom_service_proto protoreflect.FileDescriptor
 
 const file_api_proto_sbom_v1_sbom_service_proto_rawDesc = "" +
 	"\n" +
-	"$api/proto/sbom/v1/sbom_service.proto\x12\x14cyclonedx_ui.sbom.v1\x1a\x1cgoogle/api/annotations.proto\x1a%api/proto/sbom/v1/vulnerability.proto\x1a!api/proto/sbom/v1/component.proto\x1a\x1capi/proto/sbom/v1/sbom.proto\"\x8e\x01\n" +
+	"$api/proto/sbom/v1/sbom_service.proto\x12\x14cyclonedx_ui.sbom.v1\x1a\x1cgoogle/api/annotations.proto\x1a%api/proto/sbom/v1/vulnerability.proto\x1a!api/proto/sbom/v1/component.proto\x1a\x1capi/proto/sbom/v1/sbom.proto\x1a\x1capi/proto/sbom/v1/meta.proto\"\x8e\x01\n" +
 	"\x10DecomposeOptions\x124\n" +
 	"\x05files\x18\x01 \x03(\v2\x1e.cyclonedx_ui.sbom.v1.SBOMFileR\x05files\x12\x1b\n" +
 	"\tmax_depth\x18\x02 \x01(\x04R\bmaxDepth\x12'\n" +
-	"\x0fonly_vulnerable\x18\x03 \x01(\bR\x0eonlyVulnerable\"\xcf\x02\n" +
-	"\x11SBOMDecomposition\x125\n" +
-	"\x05graph\x18\x01 \x01(\v2\x1f.cyclonedx_ui.sbom.v1.ComponentR\x05graph\x12?\n" +
+	"\x0fonly_vulnerable\x18\x03 \x01(\bR\x0eonlyVulnerable\"\xff\x03\n" +
+	"\x11SBOMDecomposition\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\x04H\x00R\x02id\x88\x01\x01\x12(\n" +
+	"\rserial_number\x18\x02 \x01(\tH\x01R\fserialNumber\x88\x01\x01\x12\x15\n" +
+	"\x03md5\x18\x03 \x01(\tH\x02R\x03md5\x88\x01\x01\x127\n" +
+	"\tmeta_data\x18\x04 \x01(\v2\x1a.cyclonedx_ui.sbom.v1.MetaR\bmetaData\x125\n" +
+	"\x05graph\x18\x05 \x01(\v2\x1f.cyclonedx_ui.sbom.v1.ComponentR\x05graph\x12?\n" +
 	"\n" +
-	"components\x18\x02 \x03(\v2\x1f.cyclonedx_ui.sbom.v1.ComponentR\n" +
+	"components\x18\x06 \x03(\v2\x1f.cyclonedx_ui.sbom.v1.ComponentR\n" +
 	"components\x12M\n" +
-	"\x0fvulnerabilities\x18\x03 \x03(\v2#.cyclonedx_ui.sbom.v1.VulnerabilityR\x0fvulnerabilities\x12\x1f\n" +
-	"\vtotal_nodes\x18\x04 \x01(\x04R\n" +
+	"\x0fvulnerabilities\x18\a \x03(\v2#.cyclonedx_ui.sbom.v1.VulnerabilityR\x0fvulnerabilities\x12\x1f\n" +
+	"\vtotal_nodes\x18\b \x01(\x04R\n" +
 	"totalNodes\x12R\n" +
-	"\x11dependency_cycles\x18\x05 \x03(\v2%.cyclonedx_ui.sbom.v1.DependencyCycleR\x10dependencyCycles2\x8e\x01\n" +
+	"\x11dependency_cycles\x18\t \x03(\v2%.cyclonedx_ui.sbom.v1.DependencyCycleR\x10dependencyCyclesB\x05\n" +
+	"\x03_idB\x10\n" +
+	"\x0e_serial_numberB\x06\n" +
+	"\x04_md52\x8e\x01\n" +
 	"\vSbomService\x12\x7f\n" +
 	"\tDecompose\x12&.cyclonedx_ui.sbom.v1.DecomposeOptions\x1a'.cyclonedx_ui.sbom.v1.SBOMDecomposition\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/api/v1/sbom/decomposeBBZ@github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1;sbom_v1b\x06proto3"
 
@@ -196,23 +235,25 @@ var file_api_proto_sbom_v1_sbom_service_proto_goTypes = []any{
 	(*DecomposeOptions)(nil),  // 0: cyclonedx_ui.sbom.v1.DecomposeOptions
 	(*SBOMDecomposition)(nil), // 1: cyclonedx_ui.sbom.v1.SBOMDecomposition
 	(*SBOMFile)(nil),          // 2: cyclonedx_ui.sbom.v1.SBOMFile
-	(*Component)(nil),         // 3: cyclonedx_ui.sbom.v1.Component
-	(*Vulnerability)(nil),     // 4: cyclonedx_ui.sbom.v1.Vulnerability
-	(*DependencyCycle)(nil),   // 5: cyclonedx_ui.sbom.v1.DependencyCycle
+	(*Meta)(nil),              // 3: cyclonedx_ui.sbom.v1.Meta
+	(*Component)(nil),         // 4: cyclonedx_ui.sbom.v1.Component
+	(*Vulnerability)(nil),     // 5: cyclonedx_ui.sbom.v1.Vulnerability
+	(*DependencyCycle)(nil),   // 6: cyclonedx_ui.sbom.v1.DependencyCycle
 }
 var file_api_proto_sbom_v1_sbom_service_proto_depIdxs = []int32{
 	2, // 0: cyclonedx_ui.sbom.v1.DecomposeOptions.files:type_name -> cyclonedx_ui.sbom.v1.SBOMFile
-	3, // 1: cyclonedx_ui.sbom.v1.SBOMDecomposition.graph:type_name -> cyclonedx_ui.sbom.v1.Component
-	3, // 2: cyclonedx_ui.sbom.v1.SBOMDecomposition.components:type_name -> cyclonedx_ui.sbom.v1.Component
-	4, // 3: cyclonedx_ui.sbom.v1.SBOMDecomposition.vulnerabilities:type_name -> cyclonedx_ui.sbom.v1.Vulnerability
-	5, // 4: cyclonedx_ui.sbom.v1.SBOMDecomposition.dependency_cycles:type_name -> cyclonedx_ui.sbom.v1.DependencyCycle
-	0, // 5: cyclonedx_ui.sbom.v1.SbomService.Decompose:input_type -> cyclonedx_ui.sbom.v1.DecomposeOptions
-	1, // 6: cyclonedx_ui.sbom.v1.SbomService.Decompose:output_type -> cyclonedx_ui.sbom.v1.SBOMDecomposition
-	6, // [6:7] is the sub-list for method output_type
-	5, // [5:6] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	3, // 1: cyclonedx_ui.sbom.v1.SBOMDecomposition.meta_data:type_name -> cyclonedx_ui.sbom.v1.Meta
+	4, // 2: cyclonedx_ui.sbom.v1.SBOMDecomposition.graph:type_name -> cyclonedx_ui.sbom.v1.Component
+	4, // 3: cyclonedx_ui.sbom.v1.SBOMDecomposition.components:type_name -> cyclonedx_ui.sbom.v1.Component
+	5, // 4: cyclonedx_ui.sbom.v1.SBOMDecomposition.vulnerabilities:type_name -> cyclonedx_ui.sbom.v1.Vulnerability
+	6, // 5: cyclonedx_ui.sbom.v1.SBOMDecomposition.dependency_cycles:type_name -> cyclonedx_ui.sbom.v1.DependencyCycle
+	0, // 6: cyclonedx_ui.sbom.v1.SbomService.Decompose:input_type -> cyclonedx_ui.sbom.v1.DecomposeOptions
+	1, // 7: cyclonedx_ui.sbom.v1.SbomService.Decompose:output_type -> cyclonedx_ui.sbom.v1.SBOMDecomposition
+	7, // [7:8] is the sub-list for method output_type
+	6, // [6:7] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_sbom_v1_sbom_service_proto_init() }
@@ -223,6 +264,8 @@ func file_api_proto_sbom_v1_sbom_service_proto_init() {
 	file_api_proto_sbom_v1_vulnerability_proto_init()
 	file_api_proto_sbom_v1_component_proto_init()
 	file_api_proto_sbom_v1_sbom_proto_init()
+	file_api_proto_sbom_v1_meta_proto_init()
+	file_api_proto_sbom_v1_sbom_service_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
