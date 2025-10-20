@@ -93,6 +93,15 @@ nav#sidebar {
     overflow-y: scroll;
     scrollbar-width: none;
 
+    code {
+      display: inline;
+      color: colors.$code-color
+    }
+
+    ul {
+      padding: 0 0 0 1rem;
+    }
+
     details {
       &.resolved-cycles {
         color: #e82c2c;

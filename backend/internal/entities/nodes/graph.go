@@ -174,7 +174,7 @@ func (g *DependencyGraph) ToProtoDecompositionV1() *sbom_v1.SBOMDecomposition {
 	}
 
 	slices.SortFunc(p.Vulnerabilities, func(a, b *sbom_v1.Vulnerability) int {
-		return cmp.Compare(b.GetMaxRating(), a.GetMaxRating())
+		return cmp.Compare(a.GetMaxRating(), b.GetMaxRating())
 	})
 
 	for i, cycle := range g.DetectedCycles {

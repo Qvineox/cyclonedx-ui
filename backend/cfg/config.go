@@ -40,7 +40,7 @@ type HTTPConfig struct {
 }
 
 type CyclonedxConfig struct {
-	MinTransitiveSeverity float64 `yaml:"min_transitive_severity" env:"MIN_TRANSITIVE_SEVERITY" env-default:"8.0"`
+	MinTransitiveSeverity float64 `yaml:"min_transitive_severity" env:"MIN_TRANSITIVE_SEVERITY" env-default:"1.0"`
 }
 
 type GRPCConfig struct {
