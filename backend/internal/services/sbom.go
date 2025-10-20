@@ -25,20 +25,25 @@ func NewSBOMServiceImpl(config cfg.CyclonedxConfig) *SBOMServiceImpl {
 }
 
 func (service SBOMServiceImpl) Decompose(ctx context.Context, options *sbom_v1.DecomposeOptions) (*sbom_v1.SBOMDecomposition, error) {
-	if len(options.Files) == 0 {
+	if options.GetUuid() != "" {
+		return nil, status.Error(codes.Unimplemented, "uuid query not supported")
+	}
+
+	upload := options.GetUpload()
+	if upload == nil || upload.Files == nil || len(upload.Files) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "files not provided")
-	} else if len(options.Files) > 1 {
+	} else if len(upload.Files) > 1 {
 		return nil, status.Error(codes.Unimplemented, "multiple files provided")
 	}
 
 	var format cdx.BOMFileFormat
 	var startedAt = time.Now()
 
-	switch filepath.Ext(options.Files[0].FileName) {
+	switch filepath.Ext(upload.Files[0].FileName) {
 	case ".json":
 		format = cdx.BOMFileFormatJSON
 	default:
-		slog.Error("unsupported sbom file format format", slog.String("format", filepath.Ext(options.Files[0].GetFileName())))
+		slog.Error("unsupported sbom file format format", slog.String("format", filepath.Ext(upload.Files[0].GetFileName())))
 		return nil, status.Error(codes.Unimplemented, "file format not supported")
 	}
 
@@ -48,10 +53,10 @@ func (service SBOMServiceImpl) Decompose(ctx context.Context, options *sbom_v1.D
 	)
 
 	var sbom cdx.BOM
-	decoder := cdx.NewBOMDecoder(bytes.NewReader(options.Files[0].Data), format)
+	decoder := cdx.NewBOMDecoder(bytes.NewReader(upload.Files[0].Data), format)
 	err := decoder.Decode(&sbom)
 	if err != nil {
-		slog.Error("failed to decode sbom", slog.String("file_name", options.Files[0].GetFileName()), slog.String("error", err.Error()))
+		slog.Error("failed to decode sbom", slog.String("file_name", upload.Files[0].GetFileName()), slog.String("error", err.Error()))
 		return nil, status.Error(codes.Internal, "failed to decode sbom file: "+err.Error())
 	}
 
@@ -64,13 +69,13 @@ func (service SBOMServiceImpl) Decompose(ctx context.Context, options *sbom_v1.D
 
 	graph, err := BuildDependencyGraph(&sbom)
 	if err != nil {
-		slog.Error("failed to build dependency graph", slog.String("file_name", options.Files[0].GetFileName()), slog.String("error", err.Error()))
+		slog.Error("failed to build dependency graph", slog.String("file_name", upload.Files[0].GetFileName()), slog.String("error", err.Error()))
 		return nil, status.Error(codes.Internal, "failed to build dependency graph: "+err.Error())
 	}
 
 	if len(graph.CyclePaths) > 0 {
 		slog.Info("cycles detected in dependency graph",
-			slog.String("file_name", options.Files[0].GetFileName()),
+			slog.String("file_name", upload.Files[0].GetFileName()),
 			slog.Uint64("cycle_count", uint64(len(graph.CyclePaths))),
 		)
 	}
@@ -78,7 +83,7 @@ func (service SBOMServiceImpl) Decompose(ctx context.Context, options *sbom_v1.D
 	cleanGraph, err := graph.BuildCleanGraph(service.config.MinTransitiveSeverity, options.GetOnlyVulnerable(), int(options.GetMaxDepth()))
 	if err != nil {
 		slog.Error("failed to build dependency graph",
-			slog.String("file_name", options.Files[0].GetFileName()),
+			slog.String("file_name", upload.Files[0].GetFileName()),
 			slog.String("error", err.Error()),
 		)
 
@@ -86,11 +91,12 @@ func (service SBOMServiceImpl) Decompose(ctx context.Context, options *sbom_v1.D
 	}
 
 	slog.Info("sbom decomposition finished successfully",
-		slog.String("file_name", options.Files[0].GetFileName()),
+		slog.String("file_name", upload.Files[0].GetFileName()),
 		slog.Int("total_nodes_count", cleanGraph.TotalNodes),
 		slog.Int("total_cycles_resolved", len(cleanGraph.DetectedCycles)),
 		slog.Duration("time_taken_seconds", time.Since(startedAt).Round(time.Second)),
 	)
+
 	return cleanGraph.ToProtoDecompositionV1(), nil
 }
 
@@ -164,8 +170,7 @@ func BuildDependencyGraph(sbom *cdx.BOM) (*nodes.DependencyGraph, error) {
 		return nil, errors.New("dependency graph is missing or has no root component")
 	}
 
-	//
-	//// Если несколько корней, создаем виртуальный корень
+	// // create virtual root if not found
 	//if len(rootNodes) > 1 {
 	//	nodes.createVirtualRoot(rootNodes)
 	//} else {

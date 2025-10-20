@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package cyclonedx_ui.project.v1;
+
+option go_package = "github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/project/v1;project_v1";
+
+import "google/protobuf/timestamp.proto";
+
+message Revision {
+  uint64 id = 1;
+  string name = 2;
+
+  uint64 project_id = 3;
+
+  repeated string git_tags = 4;
+  repeated string git_branch = 5;
+  optional string git_commit_hash = 6;
+
+  string vcs_url = 7;
+  string created_by = 8;
+
+  optional string sbom_file_uuid = 9;
+
+  optional google.protobuf.Timestamp created_at = 10;
+  optional google.protobuf.Timestamp updated_at = 11;
+}
+

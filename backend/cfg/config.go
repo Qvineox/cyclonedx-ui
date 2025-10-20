@@ -15,7 +15,7 @@ type AppConfig struct {
 	Server ServerConfig `yaml:"server" env-prefix:"SRV_"`
 
 	CycloneDX CyclonedxConfig `yaml:"cyclonedx" env-prefix:"CDX_"`
-	//Database DatabaseConfig `yaml:"database" env-prefix:"DB_"`
+	Database  DatabaseConfig  `yaml:"database" env-prefix:"DB_"`
 }
 
 type ServerConfig struct {
@@ -52,18 +52,18 @@ type GRPCConfig struct {
 	Reflect bool `yaml:"reflect" env:"REFLECT" env-default:"false"`
 }
 
-//type DatabaseConfig struct {
-//	File string `yaml:"bolt_file" env:"BOLT_FILE" env-default:"bolt.db"`
-//
-//	Host string `yaml:"host" env:"HOST" env-default:"0.0.0.0"`
-//	Port uint64 `yaml:"port" env:"PORT" env-default:"8080"`
-//
-//	User     string `yaml:"user" env:"USER"`
-//	Pass     string `yaml:"pass" env:"PASS"`
-//	Database string `yaml:"name" env:"NAME" env-default:"pkg_sec_gate"`
-//
-//	Timezone string `yaml:"timezone" env:"TZ" env-default:"Europe/Moscow"`
-//}
+type DatabaseConfig struct {
+	Enable bool `yaml:"enable" env:"ENABLE" env-default:"true"`
+
+	Host string `yaml:"host" env:"HOST" env-default:"0.0.0.0"`
+	Port uint64 `yaml:"port" env:"PORT" env-default:"5432"`
+
+	User     string `yaml:"user" env:"USER" env-default:"cdx_ui_user"`
+	Pass     string `yaml:"pass" env:"PASS"`
+	Database string `yaml:"name" env:"NAME" env-default:"cdx_ui_db"`
+
+	Timezone string `yaml:"timezone" env:"TZ" env-default:"Europe/Moscow"`
+}
 
 func NewAppConfigFromFile(path *string) *AppConfig {
 	slog.Info("reading config from file")

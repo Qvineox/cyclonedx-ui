@@ -10,20 +10,36 @@ import "api/proto/sbom/v1/vulnerability.proto";
 import "api/proto/sbom/v1/component.proto";
 import "api/proto/sbom/v1/sbom.proto";
 
+import "api/proto/project/v1/revision.proto";
+
 service SbomService {
   rpc Decompose(DecomposeOptions) returns (SBOMDecomposition) {
     option (google.api.http) = {
       post: "/api/v1/sbom/decompose"
-      body: "*"
+      body: "*",
+      additional_bindings: {
+        post: "/api/v1/sbom/{file_uuid}/decompose"
+        body: "*",
+      }
     };
   };
+
+  rpc Upload(UploadOptions) returns (project.v1.Revision) {
+    option (google.api.http) = {
+      post: "/api/v1/sbom/{project_uid}/upload"
+      body: "*",
+    };
+  }
 }
 
 message DecomposeOptions {
-  repeated SBOMFile files = 1;
+  oneof source {
+    string file_uuid = 1;
+    SBOMFiles upload = 2;
+  }
 
-  uint64 max_depth = 2;
-  bool only_vulnerable = 3;
+  uint64 max_depth = 3;
+  bool only_vulnerable = 4;
 }
 
 message SBOMDecomposition {
@@ -36,4 +52,8 @@ message SBOMDecomposition {
   repeated DependencyCycle dependency_cycles = 5;
 }
 
+message UploadOptions {
+  SBOMFiles upload = 1;
 
+  string project_uid = 2;
+}

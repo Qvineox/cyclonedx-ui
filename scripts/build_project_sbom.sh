@@ -13,5 +13,6 @@ docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t aquasec/trivy:latest sbom --sc
 docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t aquasec/trivy:latest convert --format cyclonedx --output /app/${TRIVY_SBOM_FILE_NAME} /app/${TRIVY_REPORT_FILE_NAME}
 
 # using depscan
-docker run --rm -v $(pwd):/app:rw ghcr.io/owasp-dep-scan/dep-scan depscan --src /app --reports-dir /app/reports
+docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t  ghcr.io/owasp-dep-scan/dep-scan depscan --src /app --reports-dir /app/reports/depscan
 
+sudo docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/cyclonedx/cdxgen:latest --resolve-class --evidence --required-only --deep --install-deps true --max-old-space-size 8196 --fail-on-error -r /app/jar/file.jar -o /app/jar_bom.evidence-class-required.cdx.json
