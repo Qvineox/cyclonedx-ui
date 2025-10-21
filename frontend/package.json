@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@protobuf-ts/plugin": "^2.11.1",
+    "@vitejs/plugin-react": "^5.0.4",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
     "datatables.net-autofill-bs5": "^2.7.1",

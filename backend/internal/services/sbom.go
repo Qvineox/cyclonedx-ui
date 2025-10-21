@@ -10,6 +10,7 @@ import (
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/Qvineox/cyclonedx-ui/cfg"
+	v1 "github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/project/v1"
 	sbom_v1 "github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1"
 	"github.com/Qvineox/cyclonedx-ui/internal/entities/nodes"
 	"google.golang.org/grpc/codes"
@@ -25,7 +26,7 @@ func NewSBOMServiceImpl(config cfg.CyclonedxConfig) *SBOMServiceImpl {
 }
 
 func (service SBOMServiceImpl) Decompose(ctx context.Context, options *sbom_v1.DecomposeOptions) (*sbom_v1.SBOMDecomposition, error) {
-	if options.GetUuid() != "" {
+	if options.GetFileUuid() != "" {
 		return nil, status.Error(codes.Unimplemented, "uuid query not supported")
 	}
 
@@ -178,4 +179,9 @@ func BuildDependencyGraph(sbom *cdx.BOM) (*nodes.DependencyGraph, error) {
 	//}
 
 	return graph, nil
+}
+
+func (service SBOMServiceImpl) Upload(ctx context.Context, options *sbom_v1.UploadOptions) (*v1.Revision, error) {
+	//TODO implement me
+	panic("implement me")
 }

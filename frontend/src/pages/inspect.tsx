@@ -9,8 +9,13 @@ import VulnerabilityList from "../components/vulnerability-list/vulnerability-li
 import {DecomposeSBOMFile} from "../api/sbom.ts";
 import Badge from "react-bootstrap/Badge";
 import SunburstChart from "../components/sunburst/sunburst-graph.tsx";
+import {useSearchParams} from "react-router-dom";
 
 export function InspectPage() {
+    document.title = "SBOM inspector"
+
+    const [searchParams, setSearchParams] = useSearchParams();
+
     const [files, setFiles] = useState<FileList>();
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -39,10 +44,17 @@ export function InspectPage() {
                 .then(data => {
                     setBillData(data)
                 })
+                .catch(() => {
+                    alert("failed to process SBOM file")
+                })
                 .finally(() => {
                     setIsLoading(false)
                 })
         }
+    }
+
+    const clearFilter = () => {
+        setSearchParams(new URLSearchParams())
     }
 
     return <div className="inspect-page">
@@ -120,9 +132,9 @@ export function InspectPage() {
                     }
                     <b>SBOM summary</b>
                     <p>Total nodes count: {billData.totalNodes}</p>
-                    <p>Total unique components count: {billData.components.length}</p>
+                    <p>Total unique components count: {billData.components?.length || "N/A"}</p>
                     {
-                        billData.vulnerabilities.length > 0 ?
+                        billData.vulnerabilities && billData.vulnerabilities.length > 0 ?
                             <details className={"total-cves"}>
                                 <summary>
                                     Total CVEs count: {billData.vulnerabilities.length}
@@ -137,7 +149,7 @@ export function InspectPage() {
                             <span/>
                     }
                     {
-                        billData.dependencyCycles.length > 0
+                        billData.dependencyCycles && billData.dependencyCycles.length > 0
                             ?
                             <details className={"resolved-cycles"}>
                                 <summary>
@@ -171,11 +183,21 @@ export function InspectPage() {
                         <Badge text={"dark"} bg={"info"}>Info</Badge>
                         <Badge text={"dark"} bg={"secondary"}>Transitive</Badge>
                     </div>
-                    <SunburstChart rootComponent={billData.graph}/>
+                    <div className={"sbom-sunburst-graph-actions"}>
+                        <Button size={"sm"} variant={"outline-secondary"} onClick={() => clearFilter()}>
+                            Clear filter
+                        </Button>
+                    </div>
+                    {
+                        billData.graph !== undefined ?
+                            <SunburstChart rootComponent={billData.graph}/>
+                            :
+                            <Fragment/>
+                    }
                 </div>
                 <div id="sbom-sunburst-graph-filters"></div>
                 {
-                    billData.components.length > 0 ?
+                    billData.components && billData.components.length > 0 ?
                         <div id="sbom-components-list-container">
                             <ComponentList components={billData.components}/>
                         </div>
@@ -183,7 +205,7 @@ export function InspectPage() {
                         <Fragment/>
                 }
                 {
-                    billData.vulnerabilities.length > 0 ?
+                    billData.vulnerabilities && billData.vulnerabilities.length > 0 ?
                         <div id="sbom-vulnerabilities-list-container">
                             <VulnerabilityList vulnerabilities={billData.vulnerabilities}/>
                         </div>

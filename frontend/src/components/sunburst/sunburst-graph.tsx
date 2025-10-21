@@ -1,6 +1,7 @@
 import React, {useMemo} from 'react';
 import ReactECharts from 'echarts-for-react';
 import type {IComponent} from "../../types/sbom.ts";
+import {useSearchParams} from "react-router-dom";
 
 interface SunburstChartProps {
     rootComponent: IComponent;
@@ -10,6 +11,8 @@ interface SunburstChartProps {
 const maxLevelsToShow: number = 12;
 
 const SunburstChart: React.FC<SunburstChartProps> = ({rootComponent, onNodeClick}) => {
+    const [searchParams] = useSearchParams();
+
     const chartData = useMemo(() => {
         const convertToSunburstData = (component: IComponent, depth: number = 0): any => {
             const vulnerabilityCount = component.vulnerabilities?.length || 0;
@@ -22,14 +25,27 @@ const SunburstChart: React.FC<SunburstChartProps> = ({rootComponent, onNodeClick
                 ) || [];
             }
 
+            let opacity: number = 1;
+            let borderWidth: number = 0.25;
+
+            if (searchParams.has("component")) {
+                if (component.name === searchParams.get("component")) {
+                    opacity = 1
+                    borderWidth = 1
+                } else {
+                    opacity = 0.25
+                }
+            }
+
             return {
                 name: component.name,
                 value: calculateNodeValue(component), // Размер сектора основан на количестве потомков
                 itemStyle: {
                     color: getNodeColor(component),
                     borderColor: "#000000",
-                    borderWidth: 0.5,
+                    borderWidth: borderWidth,
                     shadowBlur: 1,
+                    opacity: opacity,
                     shadowColor: "#000000"
                 },
                 children: children,
@@ -43,7 +59,7 @@ const SunburstChart: React.FC<SunburstChartProps> = ({rootComponent, onNodeClick
         };
 
         return convertToSunburstData(rootComponent);
-    }, [rootComponent]);
+    }, [rootComponent, searchParams]);
 
     const option = useMemo(() => {
         if (!chartData) return {};
@@ -94,8 +110,6 @@ const SunburstChart: React.FC<SunburstChartProps> = ({rootComponent, onNodeClick
     }, [chartData]);
 
     const handleChartClick = (params: any) => {
-        console.debug(params)
-
         if (onNodeClick && params.data) {
             const findComponent = (current: IComponent): IComponent | null => {
                 if (current.name === params.data.name &&
@@ -119,7 +133,7 @@ const SunburstChart: React.FC<SunburstChartProps> = ({rootComponent, onNodeClick
     };
 
     const chartEvents = {
-        click: handleChartClick
+        click: handleChartClick,
     };
 
     if (!chartData) {
@@ -143,7 +157,6 @@ const SunburstChart: React.FC<SunburstChartProps> = ({rootComponent, onNodeClick
             <ReactECharts option={option}
                           style={{height: '100%', width: '100%'}}
                           onEvents={chartEvents}
-                          lazyUpdate={true}
                           opts={{renderer: 'canvas'}}
             />
         </div>

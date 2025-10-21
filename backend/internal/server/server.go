@@ -2,6 +2,13 @@ package server
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
+	"net"
+	"net/http"
+	"strconv"
+	"strings"
+
 	"github.com/Qvineox/cyclonedx-ui/cfg"
 	sbom_v1 "github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/sbom/v1"
 	"github.com/Qvineox/cyclonedx-ui/pkg/frontend"
@@ -14,9 +21,6 @@ import (
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
-	"log/slog"
-	"net/http"
-	"strings"
 
 	_ "google.golang.org/grpc/encoding/gzip"
 )
@@ -59,13 +63,16 @@ func NewServer(ctx context.Context, config cfg.ServerConfig, services Services) 
 		reflection.Register(grpcServer)
 	}
 
+	slog.Warn(fmt.Sprintf("rest api enabled. available at: https://%s/api/v1", net.JoinHostPort(config.HTTP.Host, strconv.FormatUint(config.HTTP.Port, 10))))
 	mux.Handle("/api/v1/", gwMux)
 
 	if config.HTTP.Web {
+		slog.Warn(fmt.Sprintf("web ui enabled. available at: https://%s", net.JoinHostPort(config.HTTP.Host, strconv.FormatUint(config.HTTP.Port, 10))))
 		mux.Handle("/", frontend.StaticFilesHandler())
 	}
 
 	if config.HTTP.Swagger {
+		slog.Warn(fmt.Sprintf("swagger web ui enabled. available at: https://%s/swagger/", net.JoinHostPort(config.HTTP.Host, strconv.FormatUint(config.HTTP.Port, 10))))
 		mux.Handle("/swagger/", frontend.SwaggerHandler())
 	}
 

@@ -5,6 +5,6 @@ node_modules
 dist
 deps.slices.json
 
-/backend/pkg/frontend/swagger/apidocs.swagger.json
+/backend/pkg/frontend/swagger/swagger.json
 
 *.cdx.*

@@ -1,3 +1,24 @@
+export interface IDecomposeOptions {
+    fileUuid?: string;
+
+    upload: UploadOptions
+
+    maxDepth: number;
+    onlyVulnerable: boolean;
+}
+
+export interface UploadOptions {
+    files?: Array<ISBOMFile>
+
+    projectUid?: string;
+}
+
+export interface ISBOMFile {
+    fileName: string;
+    version?: string | undefined;
+    data: string;
+}
+
 export interface ISBOMDecomposition {
     id: number | undefined;
     serialNumber: string | undefined;
@@ -7,11 +28,11 @@ export interface ISBOMDecomposition {
 
     graph: IComponent
 
-    components: Array<IComponent>
-    vulnerabilities: Array<IVulnerability>
+    components?: Array<IComponent>
+    vulnerabilities?: Array<IVulnerability>
 
     totalNodes: string
-    dependencyCycles: Array<IDependencyCycle>
+    dependencyCycles?: Array<IDependencyCycle>
 }
 
 export interface IComponent {

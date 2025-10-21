@@ -1,21 +1,25 @@
+import type {IDecomposeOptions} from "../types/sbom.ts";
+
 export async function DecomposeSBOMFile(file: File, onlyVulnerable: boolean, maxDepth: number): Promise<Response> {
     const data: string = await blobToBase64(file)
-    return fetch("/api/v1/sbom/decompose", {
+    return fetch((import.meta.env.VITE_BACKEND_HOST || "") + "/api/v1/sbom/decompose", {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            "only_vulnerable": onlyVulnerable,
-            "max_depth": maxDepth,
-            "files": [
-                {
-                    "data": data.split(',')[1],
-                    "file_name": file.name
-                }
-            ]
-        })
+            onlyVulnerable: onlyVulnerable,
+            maxDepth: maxDepth,
+            upload: {
+                files: [
+                    {
+                        data: data.split(',')[1],
+                        fileName: file.name
+                    }
+                ]
+            }
+        } as IDecomposeOptions)
     })
 }
 

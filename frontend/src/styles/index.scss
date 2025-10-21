@@ -128,10 +128,12 @@ nav#sidebar {
 
     border-left: 2px solid #283b5c;
 
-    .sbom-sunburst-graph-legend {
+    .sbom-sunburst-graph-legend, .sbom-sunburst-graph-actions {
       position: relative;
       top: 0;
       left: 2vw;
+
+      z-index: 95;
 
       padding: 2vh 1vw;
 
@@ -144,7 +146,9 @@ nav#sidebar {
 
       min-width: 200px;
       width: 10vw;
+    }
 
+    .sbom-sunburst-graph-legend {
       min-height: 100px;
       height: 20%;
 
@@ -175,9 +179,18 @@ nav#sidebar {
       }
     }
 
+    .sbom-sunburst-graph-actions {
+      margin-top: 1vh;
+
+      min-width: 200px;
+      width: 10vw;
+    }
+
     .sbom-sunburst-graph-canvas {
+      z-index: 80;
+
       position: relative;
-      top: -20%;
+      top: -25%;
     }
   }
 
@@ -201,8 +214,21 @@ nav#sidebar {
   table {
     tr {
       td {
+        padding: 5px 10px;
+
         &.source, &.description, &.fix {
           font-size: 0.75rem;
+        }
+
+        &.actions {
+          text-align: end;
+          padding-right: 20px;
+
+          a {
+            &:hover {
+              cursor: pointer;
+            }
+          }
         }
       }
     }

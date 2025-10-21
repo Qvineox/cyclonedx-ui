@@ -73,7 +73,7 @@ func NewAppConfigFromFile(path *string) *AppConfig {
 	if err != nil {
 		panic("unable to read config: " + err.Error())
 	} else {
-		slog.Info("config loaded from environment")
+		config.log("config loaded from file")
 	}
 
 	return &config
@@ -87,33 +87,37 @@ func NewAppConfigFromEnv() *AppConfig {
 	if err != nil {
 		panic("unable to read config: " + err.Error())
 	} else {
-		slog.Info("config loaded from environment",
-			slog.Uint64("log level", uint64(config.LogLevel)),
-			slog.Group("servers config",
-				slog.Bool("health server enabled", config.Server.Health),
-				slog.Uint64("max message size", config.Server.MaxMessageSize),
-				slog.Group("cors",
-					slog.Bool("cors debug enabled", config.Server.CorsDebug),
-					slog.String("cors origins", strings.Join(config.Server.Origins, "; ")),
-				),
-				slog.Group("http server config",
-					slog.Bool("enabled", config.Server.HTTP.Enable),
-					slog.Bool("ui enabled", config.Server.HTTP.Web),
-					slog.Bool("swagger enabled", config.Server.HTTP.Swagger),
-					slog.String("host", config.Server.HTTP.Host),
-					slog.Uint64("port", config.Server.HTTP.Port),
-				),
-				slog.Group("grpc server config",
-					slog.Bool("enabled", config.Server.GRPC.Enable),
-					slog.String("host", config.Server.GRPC.Host),
-					slog.Uint64("port", config.Server.GRPC.Port),
-					slog.Bool("server reflection", config.Server.GRPC.Reflect),
-				),
-				slog.Group("cyclonedx analysis config",
-					slog.Float64("min transitive severity", config.CycloneDX.MinTransitiveSeverity),
-				)),
-		)
+		config.log("config loaded from environment")
 	}
 
 	return &config
+}
+
+func (config AppConfig) log(msg string) {
+	slog.Info(msg,
+		slog.Uint64("log level", uint64(config.LogLevel)),
+		slog.Group("servers config",
+			slog.Bool("health server enabled", config.Server.Health),
+			slog.Uint64("max message size", config.Server.MaxMessageSize),
+			slog.Group("cors",
+				slog.Bool("cors debug enabled", config.Server.CorsDebug),
+				slog.String("cors origins", strings.Join(config.Server.Origins, "; ")),
+			),
+			slog.Group("http server config",
+				slog.Bool("enabled", config.Server.HTTP.Enable),
+				slog.Bool("ui enabled", config.Server.HTTP.Web),
+				slog.Bool("swagger enabled", config.Server.HTTP.Swagger),
+				slog.String("host", config.Server.HTTP.Host),
+				slog.Uint64("port", config.Server.HTTP.Port),
+			),
+			slog.Group("grpc server config",
+				slog.Bool("enabled", config.Server.GRPC.Enable),
+				slog.String("host", config.Server.GRPC.Host),
+				slog.Uint64("port", config.Server.GRPC.Port),
+				slog.Bool("server reflection", config.Server.GRPC.Reflect),
+			),
+			slog.Group("cyclonedx analysis config",
+				slog.Float64("min transitive severity", config.CycloneDX.MinTransitiveSeverity),
+			)),
+	)
 }

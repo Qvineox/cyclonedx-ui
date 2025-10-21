@@ -14,6 +14,7 @@ export default function Navbar() {
            title={"view components"}
            className={"bi bi-layers text-white"}
         />
+
         <a href={"#sbom-vulnerabilities-list-container"}
            title={"view vulnerabilities"}
            className={"bi bi-exclamation-triangle text-white"}
