@@ -3,7 +3,10 @@ GO_OUT=gen/go
 TS_OUT=gen/ts
 
 PROTOC_INC=C:\Users\ydlysak\protoc-32.0\include
-PROTO_GRPC_GW_INC=C:\Users\ydlysak\go\pkg\mod\github.com\grpc-ecosystem\grpc-gateway\v2@v2.27.2
+PROTO_GRPC_GW_INC=C:\Users\YDLysak\go\pkg\mod\github.com\grpc-ecosystem\grpc-gateway@v1.16.0\third_party\googleapis
+
+# C:\Users\YDLysak\protoc\include
+# C:\Users\YDLysak\go\pkg\mod\github.com\grpc-ecosystem\grpc-gateway@v1.16.0\third_party\googleapis
 
 all: go gateway
 
