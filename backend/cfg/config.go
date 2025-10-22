@@ -58,9 +58,9 @@ type DatabaseConfig struct {
 	Host string `yaml:"host" env:"HOST" env-default:"0.0.0.0"`
 	Port uint64 `yaml:"port" env:"PORT" env-default:"5432"`
 
-	User     string `yaml:"user" env:"USER" env-default:"cdx_ui_user"`
+	User     string `yaml:"user" env:"USER" env-default:"cdx_user"`
 	Pass     string `yaml:"pass" env:"PASS"`
-	Database string `yaml:"name" env:"NAME" env-default:"cdx_ui_db"`
+	Database string `yaml:"name" env:"NAME" env-default:"cdx_db"`
 
 	Timezone string `yaml:"timezone" env:"TZ" env-default:"Europe/Moscow"`
 }

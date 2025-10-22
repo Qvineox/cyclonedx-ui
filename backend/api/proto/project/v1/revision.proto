@@ -8,20 +8,23 @@ import "google/protobuf/timestamp.proto";
 
 message Revision {
   uint64 id = 1;
-  string name = 2;
+  
+  optional string name = 2;
+  repeated string tags = 3;
 
-  uint64 project_id = 3;
+  uint64 project_id = 4;
+  string project_slug = 5; // used to create new projects
 
-  repeated string git_tags = 4;
-  repeated string git_branch = 5;
-  optional string git_commit_hash = 6;
+  repeated string git_tags = 6;
+  repeated string git_branches = 7;
+  optional string git_commit_hash = 8;
 
-  string vcs_url = 7;
-  string created_by = 8;
+  optional string vcs_url = 9;
+  optional string created_by = 10;
 
-  optional string sbom_file_uuid = 9;
+  optional string sbom_file_uuid = 11;
 
-  optional google.protobuf.Timestamp created_at = 10;
-  optional google.protobuf.Timestamp updated_at = 11;
+  optional google.protobuf.Timestamp created_at = 12;
+  optional google.protobuf.Timestamp updated_at = 13;
 }
 

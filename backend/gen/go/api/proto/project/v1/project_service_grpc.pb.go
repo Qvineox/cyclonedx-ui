@@ -36,7 +36,7 @@ type ProjectServiceClient interface {
 	CreateProject(ctx context.Context, in *Project, opts ...grpc.CallOption) (*Project, error)
 	UpdateProject(ctx context.Context, in *Project, opts ...grpc.CallOption) (*Project, error)
 	GetProjectRevision(ctx context.Context, in *ProjectRevisionQuery, opts ...grpc.CallOption) (*Revision, error)
-	UpdateProjectRevision(ctx context.Context, in *Revision, opts ...grpc.CallOption) (*Project, error)
+	UpdateProjectRevision(ctx context.Context, in *Revision, opts ...grpc.CallOption) (*Revision, error)
 }
 
 type projectServiceClient struct {
@@ -97,9 +97,9 @@ func (c *projectServiceClient) GetProjectRevision(ctx context.Context, in *Proje
 	return out, nil
 }
 
-func (c *projectServiceClient) UpdateProjectRevision(ctx context.Context, in *Revision, opts ...grpc.CallOption) (*Project, error) {
+func (c *projectServiceClient) UpdateProjectRevision(ctx context.Context, in *Revision, opts ...grpc.CallOption) (*Revision, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Project)
+	out := new(Revision)
 	err := c.cc.Invoke(ctx, ProjectService_UpdateProjectRevision_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -116,7 +116,7 @@ type ProjectServiceServer interface {
 	CreateProject(context.Context, *Project) (*Project, error)
 	UpdateProject(context.Context, *Project) (*Project, error)
 	GetProjectRevision(context.Context, *ProjectRevisionQuery) (*Revision, error)
-	UpdateProjectRevision(context.Context, *Revision) (*Project, error)
+	UpdateProjectRevision(context.Context, *Revision) (*Revision, error)
 }
 
 // UnimplementedProjectServiceServer should be embedded to have
@@ -141,7 +141,7 @@ func (UnimplementedProjectServiceServer) UpdateProject(context.Context, *Project
 func (UnimplementedProjectServiceServer) GetProjectRevision(context.Context, *ProjectRevisionQuery) (*Revision, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProjectRevision not implemented")
 }
-func (UnimplementedProjectServiceServer) UpdateProjectRevision(context.Context, *Revision) (*Project, error) {
+func (UnimplementedProjectServiceServer) UpdateProjectRevision(context.Context, *Revision) (*Revision, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateProjectRevision not implemented")
 }
 func (UnimplementedProjectServiceServer) testEmbeddedByValue() {}

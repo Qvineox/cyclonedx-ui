@@ -45,13 +45,13 @@
             "format": "uint64"
           },
           {
-            "name": "name",
+            "name": "slug",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
-            "name": "slug",
+            "name": "name",
             "in": "query",
             "required": false,
             "type": "string"
@@ -142,13 +142,13 @@
             "format": "uint64"
           },
           {
-            "name": "name",
+            "name": "slug",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
-            "name": "slug",
+            "name": "name",
             "in": "query",
             "required": false,
             "type": "string"
@@ -227,7 +227,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1Project"
+              "$ref": "#/definitions/v1Revision"
             }
           },
           "default": {
@@ -537,6 +537,9 @@
         "name": {
           "type": "string"
         },
+        "slug": {
+          "type": "string"
+        },
         "description": {
           "type": "string"
         },
@@ -572,13 +575,23 @@
         "name": {
           "type": "string"
         },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "projectSlug": {
+          "type": "string",
+          "title": "used to create new projects"
+        },
         "gitTags": {
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "gitBranch": {
+        "gitBranches": {
           "type": "array",
           "items": {
             "type": "string"
@@ -850,6 +863,9 @@
         "name": {
           "type": "string"
         },
+        "slug": {
+          "type": "string"
+        },
         "description": {
           "type": "string"
         },
@@ -939,9 +955,19 @@
         "name": {
           "type": "string"
         },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "projectId": {
           "type": "string",
           "format": "uint64"
+        },
+        "projectSlug": {
+          "type": "string",
+          "title": "used to create new projects"
         },
         "gitTags": {
           "type": "array",
@@ -949,7 +975,7 @@
             "type": "string"
           }
         },
-        "gitBranch": {
+        "gitBranches": {
           "type": "array",
           "items": {
             "type": "string"

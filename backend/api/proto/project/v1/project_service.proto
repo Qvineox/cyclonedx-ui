@@ -52,7 +52,7 @@ service ProjectService {
     };
   }
 
-  rpc UpdateProjectRevision(Revision) returns (Project) {
+  rpc UpdateProjectRevision(Revision) returns (Revision) {
     option (google.api.http) = {
       patch: "/api/v1/projects/{project_id}/{id}",
       body: "*",
@@ -61,10 +61,12 @@ service ProjectService {
 }
 
 message ProjectsQueryFilter {
-  uint64 id = 1;
+  oneof uid {
+    uint64 id = 1;
+    string slug = 2;
+  }
 
-  string name = 2;
-  string slug = 3;
+  string name = 3;
 
   repeated string tags = 4;
 

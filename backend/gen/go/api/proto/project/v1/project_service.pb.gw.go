@@ -85,7 +85,12 @@ func request_ProjectService_GetProject_0(ctx context.Context, marshaler runtime.
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	protoReq.Id, err = runtime.Uint64(val)
+	if protoReq.Uid == nil {
+		protoReq.Uid = &ProjectsQueryFilter_Id{}
+	} else if _, ok := protoReq.Uid.(*ProjectsQueryFilter_Id); !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *ProjectsQueryFilter_Id, but: %t\n", protoReq.Uid)
+	}
+	protoReq.Uid.(*ProjectsQueryFilter_Id).Id, err = runtime.Uint64(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
@@ -109,7 +114,12 @@ func local_request_ProjectService_GetProject_0(ctx context.Context, marshaler ru
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	protoReq.Id, err = runtime.Uint64(val)
+	if protoReq.Uid == nil {
+		protoReq.Uid = &ProjectsQueryFilter_Id{}
+	} else if _, ok := protoReq.Uid.(*ProjectsQueryFilter_Id); !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *ProjectsQueryFilter_Id, but: %t\n", protoReq.Uid)
+	}
+	protoReq.Uid.(*ProjectsQueryFilter_Id).Id, err = runtime.Uint64(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
@@ -138,7 +148,12 @@ func request_ProjectService_GetProject_1(ctx context.Context, marshaler runtime.
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "slug")
 	}
-	protoReq.Slug, err = runtime.String(val)
+	if protoReq.Uid == nil {
+		protoReq.Uid = &ProjectsQueryFilter_Slug{}
+	} else if _, ok := protoReq.Uid.(*ProjectsQueryFilter_Slug); !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *ProjectsQueryFilter_Slug, but: %t\n", protoReq.Uid)
+	}
+	protoReq.Uid.(*ProjectsQueryFilter_Slug).Slug, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "slug", err)
 	}
@@ -162,7 +177,12 @@ func local_request_ProjectService_GetProject_1(ctx context.Context, marshaler ru
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "slug")
 	}
-	protoReq.Slug, err = runtime.String(val)
+	if protoReq.Uid == nil {
+		protoReq.Uid = &ProjectsQueryFilter_Slug{}
+	} else if _, ok := protoReq.Uid.(*ProjectsQueryFilter_Slug); !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *ProjectsQueryFilter_Slug, but: %t\n", protoReq.Uid)
+	}
+	protoReq.Uid.(*ProjectsQueryFilter_Slug).Slug, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "slug", err)
 	}

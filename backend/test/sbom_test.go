@@ -26,14 +26,18 @@ func TestBehavior(t *testing.T) {
 
 	t.Run("default file decomposition", func(t *testing.T) {
 		decompose, err := s.Decompose(context.Background(), &sbom_v1.DecomposeOptions{
-			Files: []*sbom_v1.SBOMFile{
-				{
-					FileName: file,
-					Data:     testFile,
-				},
-			},
 			OnlyVulnerable: false,
 			MaxDepth:       12,
+			Source: &sbom_v1.DecomposeOptions_Upload{
+				Upload: &sbom_v1.SBOMFiles{
+					Files: []*sbom_v1.SBOMFile{
+						{
+							FileName: file,
+							Data:     testFile,
+						},
+					},
+				},
+			},
 		})
 
 		require.NotNil(t, decompose)
@@ -46,14 +50,18 @@ func TestBehavior(t *testing.T) {
 
 	t.Run("file decomposition with only vulnerable components", func(t *testing.T) {
 		decompose, err := s.Decompose(context.Background(), &sbom_v1.DecomposeOptions{
-			Files: []*sbom_v1.SBOMFile{
-				{
-					FileName: file,
-					Data:     testFile,
-				},
-			},
 			OnlyVulnerable: true,
 			MaxDepth:       12,
+			Source: &sbom_v1.DecomposeOptions_Upload{
+				Upload: &sbom_v1.SBOMFiles{
+					Files: []*sbom_v1.SBOMFile{
+						{
+							FileName: file,
+							Data:     testFile,
+						},
+					},
+				},
+			},
 		})
 
 		require.NotNil(t, decompose)
@@ -66,10 +74,14 @@ func TestBehavior(t *testing.T) {
 
 	t.Run("file decomposition metadata", func(t *testing.T) {
 		decompose, err := s.Decompose(context.Background(), &sbom_v1.DecomposeOptions{
-			Files: []*sbom_v1.SBOMFile{
-				{
-					FileName: file,
-					Data:     testFile,
+			Source: &sbom_v1.DecomposeOptions_Upload{
+				Upload: &sbom_v1.SBOMFiles{
+					Files: []*sbom_v1.SBOMFile{
+						{
+							FileName: file,
+							Data:     testFile,
+						},
+					},
 				},
 			},
 		})

@@ -13,8 +13,11 @@ import (
 	"syscall"
 
 	"github.com/Qvineox/cyclonedx-ui/cfg"
+	"github.com/Qvineox/cyclonedx-ui/internal/db"
 	"github.com/Qvineox/cyclonedx-ui/internal/server"
 	"github.com/Qvineox/cyclonedx-ui/internal/services"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -39,9 +42,43 @@ func main() {
 		Level: slog.Level(config.LogLevel),
 	})))
 
-	grpcSrv, restSrv, err := server.NewServer(ctx, config.Server, server.Services{
+	var orm *gorm.DB
+	if config.Database.Enable {
+		dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s database=%s sslmode=disable TimeZone=%s",
+			config.Database.Host,
+			config.Database.Port,
+			config.Database.User,
+			config.Database.Pass,
+			config.Database.Database,
+			config.Database.Timezone,
+		)
+
+		slog.Info("connecting to database",
+			slog.String("host", config.Database.Host),
+			slog.Uint64("port", config.Database.Port),
+		)
+
+		var err error
+		orm, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if err != nil {
+			panic("failed to connect database: " + err.Error())
+		} else if orm != nil {
+			slog.Info("successfully connected to database",
+				slog.String("host", config.Database.Host),
+				slog.Uint64("port", config.Database.Port),
+			)
+		}
+	}
+
+	s := server.Services{
 		Sbom: services.NewSBOMServiceImpl(config.CycloneDX),
-	})
+	}
+
+	if config.Database.Enable && orm != nil {
+		s.Project = services.NewProjectServiceImpl(db.NewProjectRepoImpl(orm), db.NewRevisionRepoImpl(orm))
+	}
+
+	grpcSrv, restSrv, err := server.NewServer(ctx, config.Server, s)
 
 	if err != nil {
 		panic("failed to create server: " + err.Error())

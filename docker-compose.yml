@@ -24,6 +24,8 @@ services:
         delay: 5s
         max_attempts: 3
         window: 30s
+    env_file:
+      - .env
     environment:
       LOG_LEVEL: 0
       SRV_HEALTH: true
@@ -39,6 +41,13 @@ services:
       SRV_GRPC_PORT: 5621
       SRV_GRPC_ENABLE: true
       SRV_GRPC_REFLECT: true
+
+      DB_ENABLE: true
+      DB_HOST: 0.0.0.0
+      DB_PORT: $PG_PORT
+      DB_USER: $PG_USER
+      DB_PASS: $PG_PASS
+      DB_NAME: $PG_DATABASE
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
     ports:
@@ -46,3 +55,38 @@ services:
       - "5621:5621"
     labels:
       - traefik.enable=false
+
+  database:
+    image: postgres:18.0-alpine3.22
+    security_opt:
+      - no-new-privileges
+    deploy:
+      resources:
+        limits:
+          cpus: "4"
+          memory: 512M
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 30s
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: $PG_DATABASE
+      POSTGRES_USER: $PG_USER
+      POSTGRES_PASSWORD: $PG_PASS
+      PGPORT: $PG_PORT
+    ports:
+      - "5432:5432"
+    volumes:
+      - database-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${PG_DATABASE}", "-U", "${PG_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  database-data:

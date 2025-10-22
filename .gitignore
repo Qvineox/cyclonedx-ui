@@ -8,3 +8,5 @@ deps.slices.json
 /backend/pkg/frontend/swagger/swagger.json
 
 *.cdx.*
+
+.env

@@ -5,24 +5,22 @@ package cyclonedx_ui.project.v1;
 option go_package = "github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/project/v1;project_v1";
 
 import "google/protobuf/timestamp.proto";
-import "proto/options/gorm.proto";
 
 import "api/proto/project/v1/revision.proto";
 
 message Project {
-  option (gorm.opts).ormable = true;
-
   uint64 id = 1;
 
   string name = 2;
-  string description = 3;
+  string slug = 3;
+  optional string description = 4;
 
-  repeated string tags = 4;
+  repeated string tags = 5;
 
-  string vcs_url = 10;
+  optional string vcs_url = 6;
 
-  repeated Revision revisions = 11;
+  repeated Revision revisions = 7;
 
-  optional google.protobuf.Timestamp created_at = 14;
-  optional google.protobuf.Timestamp updated_at = 15;
+  optional google.protobuf.Timestamp created_at = 8;
+  optional google.protobuf.Timestamp updated_at = 9;
 }
