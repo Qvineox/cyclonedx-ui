@@ -53,7 +53,7 @@ type GRPCConfig struct {
 }
 
 type DatabaseConfig struct {
-	Enable bool `yaml:"enable" env:"ENABLE" env-default:"true"`
+	Enable bool `yaml:"enable" env:"ENABLE" env-default:"false"`
 
 	Host string `yaml:"host" env:"HOST" env-default:"0.0.0.0"`
 	Port uint64 `yaml:"port" env:"PORT" env-default:"5432"`

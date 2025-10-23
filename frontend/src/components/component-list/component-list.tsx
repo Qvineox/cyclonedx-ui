@@ -34,18 +34,18 @@ const columns = [
     },
 ]
 
-const handleComponentSearchClick = (name) => {
-    let searchParams = new URLSearchParams(window.location.search);
-    searchParams.set("component", name);
-
-    window.location.search = searchParams.toString();
-}
+// const handleComponentSearchClick = (name) => {
+//     let searchParams = new URLSearchParams(window.location.search);
+//     searchParams.set("component", name);
+//
+//     window.location.search = searchParams.toString();
+// }
 
 export default function ComponentList(props: IComponentListProps) {
     const [searchParams, setSearchParams] = useSearchParams();
 
     const searchComponent = (name: string) => {
-        let params = searchParams
+        const params = searchParams
         params.set("component", name)
 
         setSearchParams(params)
@@ -56,7 +56,7 @@ export default function ComponentList(props: IComponentListProps) {
                    columns={columns}
                    data={props.components}
                    slots={{
-                       8: (data) => {
+                       8: (data: string) => {
                            return <a title={"show on graph"}
                                      className={"bi bi-search text-black"}
                                      onClick={() => {

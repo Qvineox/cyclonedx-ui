@@ -14,7 +14,7 @@ import {useSearchParams} from "react-router-dom";
 export function InspectPage() {
     document.title = "SBOM inspector"
 
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [, setSearchParams] = useSearchParams();
 
     const [files, setFiles] = useState<FileList>();
     const [isLoading, setIsLoading] = useState<boolean>(false)
