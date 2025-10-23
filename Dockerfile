@@ -25,7 +25,7 @@ COPY backend /app
 RUN go mod tidy
 
 COPY --from=fe /app/dist /app/pkg/frontend/dist
-RUN mkdir /app/pkg/frontend/swagger && cp /app/gen/go/swagger.json /app/pkg/frontend/swagger/swagger.json
+RUN mkdir /app/pkg/frontend/swagger && cp /app/gen/go/apidocs.swagger.json /app/pkg/frontend/swagger/swagger.json
 
 RUN go build -ldflags '-s -w' -o /app/bin/build .
 
