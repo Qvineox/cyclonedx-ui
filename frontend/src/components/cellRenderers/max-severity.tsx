@@ -18,7 +18,7 @@ export default function renderMaxSeverityCell(rating: number) {
         } else if (rating >= 4.0) {
             bgColor = "warning"
         } else if (rating >= 0.1) {
-            return "success"
+            bgColor = "success"
         } else {
             bgColor = "info"
         }
