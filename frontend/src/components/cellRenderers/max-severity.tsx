@@ -8,16 +8,17 @@ export default function renderMaxSeverityCell(rating: number) {
     if (rating === undefined) {
         return <Fragment/>
     } else {
-        if (rating >= 7.5) {
-            if (rating >= 9.5) {
+        if (rating >= 6.9) {
+            if (rating >= 9.0) {
                 bgColor = "dark"
                 textColor = "white"
             } else {
                 bgColor = "danger"
             }
-        } else if (rating > 5) {
-
+        } else if (rating >= 4.0) {
             bgColor = "warning"
+        } else if (rating >= 0.1) {
+            return "success"
         } else {
             bgColor = "info"
         }

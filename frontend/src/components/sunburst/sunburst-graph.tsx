@@ -237,18 +237,17 @@ const getNodeColor = (component: IComponent): string => {
         case 'library':
             if (component.vulnerabilities.length > 0) {
                 const rating = component.vulnerabilities[0].maxRating
-                if (rating >= 7.5) {
-                    if (rating >= 9.5) {
+                if (rating >= 6.9) {
+                    if (rating >= 9.0) {
                         return "#701617F2"
                     } else {
                         return "#F44949B5"
                     }
-                } else if (rating > 5) {
+                } else if (rating >= 4.0) {
                     return "#ED9757FF"
-                } else if (rating > 2.5) {
+                } else if (rating >= 0.1) {
                     return "#98D89BFF"
                 } else {
-                    console.log(component.vulnerabilities)
                     return "#5799E4FF"
                 }
             } else if (component.hasTransitiveVulns) {
