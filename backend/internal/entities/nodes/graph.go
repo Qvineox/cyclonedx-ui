@@ -210,10 +210,10 @@ func (g *DependencyGraph) RootNodes() []*Node {
 	return roots
 }
 
-func (g *DependencyGraph) TopologicalSort() ([]*cdx.Component, error) {
+func (g *DependencyGraph) TopologicalSort() ([]*Node, error) {
 	visited := make(map[string]bool)
 	tempMark := make(map[string]bool)
-	var order []*cdx.Component
+	var order []*Node
 
 	var visit func(node *Node) error
 	visit = func(node *Node) error {
@@ -236,7 +236,7 @@ func (g *DependencyGraph) TopologicalSort() ([]*cdx.Component, error) {
 		tempMark[node.Component.BOMRef] = false
 		visited[node.Component.BOMRef] = true
 
-		order = append(order, node.Component)
+		order = append(order, node)
 		return nil
 	}
 
@@ -400,7 +400,7 @@ func (g *DependencyGraph) BuildCleanGraph(minTransitiveSeverity float64, vulnera
 
 	var topologicalRefs []string
 	for _, comp := range topologicalOrder {
-		topologicalRefs = append(topologicalRefs, comp.BOMRef)
+		topologicalRefs = append(topologicalRefs, comp.Component.BOMRef)
 	}
 
 	var buildCleanTree func(node *Node, level int) (*Node, bool, int, float32) // node, children has vulns?, children vulns count, max cve score

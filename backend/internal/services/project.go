@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"github.com/Qvineox/cyclonedx-ui/internal/db"
 	"log/slog"
 
 	"github.com/Qvineox/cyclonedx-ui/gen/go/api/proto/project/v1"
@@ -12,29 +13,12 @@ import (
 )
 
 type ProjectServiceImpl struct {
-	projectRepo  IProjectRepo
-	revisionRepo IRevisionRepo
+	projectRepo  db.IProjectRepo
+	revisionRepo db.IRevisionRepo
 }
 
-func NewProjectServiceImpl(projectRepo IProjectRepo, revisionRepo IRevisionRepo) *ProjectServiceImpl {
+func NewProjectServiceImpl(projectRepo db.IProjectRepo, revisionRepo db.IRevisionRepo) *ProjectServiceImpl {
 	return &ProjectServiceImpl{projectRepo: projectRepo, revisionRepo: revisionRepo}
-}
-
-type IProjectRepo interface {
-	GetProjectByID(ctx context.Context, id uint64) (*project_v1.Project, error)
-	GetProjectBySlug(ctx context.Context, slug string) (*project_v1.Project, error)
-
-	GetProjectsByQueryFilter(ctx context.Context, filter *project_v1.ProjectsQueryFilter) ([]*project_v1.Project, error)
-
-	CreateProject(ctx context.Context, project *project_v1.Project) (*project_v1.Project, error)
-	UpdateProject(ctx context.Context, project *project_v1.Project) (*project_v1.Project, error)
-}
-
-type IRevisionRepo interface {
-	GetProjectRevisionByID(ctx context.Context, projectID uint64, revisionID uint64) (*project_v1.Revision, error)
-	GetProjectRevisionBySlug(ctx context.Context, projectSlug string, revisionID uint64) (*project_v1.Revision, error)
-
-	UpdateProjectRevision(ctx context.Context, revision *project_v1.Revision) (*project_v1.Revision, error)
 }
 
 func (service ProjectServiceImpl) GetProjectsByQueryFilter(ctx context.Context, filter *project_v1.ProjectsQueryFilter) (*project_v1.ProjectsList, error) {
@@ -103,21 +87,21 @@ func (service ProjectServiceImpl) CreateProject(ctx context.Context, project *pr
 }
 
 func (service ProjectServiceImpl) UpdateProject(ctx context.Context, project *project_v1.Project) (*project_v1.Project, error) {
-	project_, err := service.projectRepo.UpdateProject(ctx, project)
+	err := service.projectRepo.UpdateProject(ctx, project)
 	if err != nil {
 		slog.Error("failed to update project", slog.String("error", err.Error()))
 		return nil, status.Error(codes.Internal, "failed to update project: "+err.Error())
 	}
 
-	return project_, nil
+	return project, nil
 }
 
 func (service ProjectServiceImpl) UpdateProjectRevision(ctx context.Context, revision *project_v1.Revision) (*project_v1.Revision, error) {
-	revision_, err := service.revisionRepo.UpdateProjectRevision(ctx, revision)
+	err := service.revisionRepo.UpdateProjectRevision(ctx, revision)
 	if err != nil {
 		slog.Error("failed to update revision", slog.String("error", err.Error()))
 		return nil, status.Error(codes.Internal, "failed to update revision: "+err.Error())
 	}
 
-	return revision_, nil
+	return revision, nil
 }

@@ -75,6 +75,19 @@ func main() {
 	}
 
 	if config.Database.Enable && orm != nil {
+		slog.Info("migrating data structures...")
+		err := orm.AutoMigrate(
+			db.Project{},
+			db.Revision{},
+			db.SbomFile{},
+		)
+
+		if err != nil {
+			panic("failed to migrate data: " + err.Error())
+		} else {
+			slog.Info("successfully migrated data structures")
+		}
+
 		s.Project = services.NewProjectServiceImpl(db.NewProjectRepoImpl(orm), db.NewRevisionRepoImpl(orm))
 	}
 

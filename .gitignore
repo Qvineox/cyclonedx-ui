@@ -10,3 +10,4 @@ deps.slices.json
 *.cdx.*
 
 .env
+/backend/cfg/config.dev.yaml

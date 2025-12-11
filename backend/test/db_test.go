@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-//const file = "cdxgen_fs_sbom.cdx.json"
+//const file1 = "cdxgen_fs_sbom.cdx.json"
 
 func TestDatabase(t *testing.T) {
 	config := cfg.NewAppConfigFromEnv()

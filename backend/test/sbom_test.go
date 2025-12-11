@@ -13,18 +13,23 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const file = "sbom.cdx.json"
+const file1 = "sbom.cdx.json"
+const file2 = "parent.cdx.json"
 
-//const file = "cdxgen_fs_sbom.cdx.json"
+//const file1 = "cdxgen_fs_sbom.cdx.json"
 
 func TestBehavior(t *testing.T) {
 	s := services.NewSBOMServiceImpl(cfg.CyclonedxConfig{MinTransitiveSeverity: 1.0})
 
-	testFile, err := os.ReadFile(filepath.Join("examples", file))
+	testFile1, err := os.ReadFile(filepath.Join("examples", file1))
 	require.NoError(t, err)
-	require.NotNil(t, testFile)
+	require.NotNil(t, testFile1)
 
-	t.Run("default file decomposition", func(t *testing.T) {
+	testFile2, err := os.ReadFile(filepath.Join("examples", file2))
+	require.NoError(t, err)
+	require.NotNil(t, testFile2)
+
+	t.Run("default file1 decomposition", func(t *testing.T) {
 		decompose, err := s.Decompose(context.Background(), &sbom_v1.DecomposeOptions{
 			OnlyVulnerable: false,
 			MaxDepth:       12,
@@ -32,8 +37,8 @@ func TestBehavior(t *testing.T) {
 				Upload: &sbom_v1.SBOMFiles{
 					Files: []*sbom_v1.SBOMFile{
 						{
-							FileName: file,
-							Data:     testFile,
+							FileName: file1,
+							Data:     testFile1,
 						},
 					},
 				},
@@ -48,7 +53,7 @@ func TestBehavior(t *testing.T) {
 		require.Empty(t, decompose.DependencyCycles)
 	})
 
-	t.Run("file decomposition with only vulnerable components", func(t *testing.T) {
+	t.Run("file1 decomposition with only vulnerable components", func(t *testing.T) {
 		decompose, err := s.Decompose(context.Background(), &sbom_v1.DecomposeOptions{
 			OnlyVulnerable: true,
 			MaxDepth:       12,
@@ -56,8 +61,8 @@ func TestBehavior(t *testing.T) {
 				Upload: &sbom_v1.SBOMFiles{
 					Files: []*sbom_v1.SBOMFile{
 						{
-							FileName: file,
-							Data:     testFile,
+							FileName: file1,
+							Data:     testFile1,
 						},
 					},
 				},
@@ -72,14 +77,14 @@ func TestBehavior(t *testing.T) {
 		require.Empty(t, decompose.DependencyCycles)
 	})
 
-	t.Run("file decomposition metadata", func(t *testing.T) {
+	t.Run("file1 decomposition metadata", func(t *testing.T) {
 		decompose, err := s.Decompose(context.Background(), &sbom_v1.DecomposeOptions{
 			Source: &sbom_v1.DecomposeOptions_Upload{
 				Upload: &sbom_v1.SBOMFiles{
 					Files: []*sbom_v1.SBOMFile{
 						{
-							FileName: file,
-							Data:     testFile,
+							FileName: file1,
+							Data:     testFile1,
 						},
 					},
 				},
@@ -107,5 +112,43 @@ func TestBehavior(t *testing.T) {
 		require.Empty(t, decompose.MetaData.Lifecycles)
 		require.Empty(t, decompose.MetaData.Properties)
 		require.Empty(t, decompose.MetaData.Authors)
+	})
+
+	t.Run("missing sbom files comparison", func(t *testing.T) {
+		compare, err := s.Compare(context.Background(), &sbom_v1.CompareOptions{
+			MaxDepth: 12,
+			Upload: &sbom_v1.SBOMFiles{
+				Files: []*sbom_v1.SBOMFile{
+					{
+						FileName: file1,
+						Data:     testFile1,
+					},
+				},
+			},
+		})
+
+		require.Nil(t, compare)
+		require.Error(t, err)
+	})
+
+	t.Run("sbom files comparison", func(t *testing.T) {
+		compare, err := s.Compare(context.Background(), &sbom_v1.CompareOptions{
+			MaxDepth: 12,
+			Upload: &sbom_v1.SBOMFiles{
+				Files: []*sbom_v1.SBOMFile{
+					{
+						FileName: file1,
+						Data:     testFile1,
+					},
+					{
+						FileName: file2,
+						Data:     testFile2,
+					},
+				},
+			},
+		})
+
+		require.NotNil(t, compare)
+		require.NoError(t, err)
 	})
 }

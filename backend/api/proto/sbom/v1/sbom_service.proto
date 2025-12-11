@@ -25,6 +25,13 @@ service SbomService {
     };
   };
 
+  rpc Compare(CompareOptions) returns (SBOMComparison) {
+    option (google.api.http) = {
+      post: "/api/v1/sbom/compare"
+      body: "*",
+    };
+  }
+
   rpc Upload(UploadOptions) returns (project.v1.Revision) {
     option (google.api.http) = {
       post: "/api/v1/sbom/{project_uid}/upload"
@@ -43,6 +50,11 @@ message DecomposeOptions {
   bool only_vulnerable = 4;
 }
 
+message CompareOptions {
+  SBOMFiles upload = 1;
+  uint64 max_depth = 2;
+}
+
 message SBOMDecomposition {
   optional uint64 id = 1;
   optional string serial_number = 2;
@@ -57,6 +69,26 @@ message SBOMDecomposition {
 
   uint64 total_nodes = 8;
   repeated DependencyCycle dependency_cycles = 9;
+}
+
+message SBOMComparison {
+  ComparedSBOMInfo left_component = 1;
+  ComparedSBOMInfo right_component = 2;
+
+  repeated Component identical_components = 3;
+
+  repeated Component left_unique_components = 4;
+  repeated Component right_unique_components = 5;
+
+  repeated Vulnerability vulnerabilities = 6;
+}
+
+message ComparedSBOMInfo {
+  optional uint64 id = 1;
+  optional string serial_number = 2;
+  optional string md5 = 3;
+
+  Meta meta_data = 4;
 }
 
 message UploadOptions {

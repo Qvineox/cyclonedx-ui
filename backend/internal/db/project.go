@@ -49,6 +49,16 @@ func (p Project) toProtoV1() *v1.Project {
 	return &p_
 }
 
+type IProjectRepo interface {
+	GetProjectByID(ctx context.Context, id uint64) (*v1.Project, error)
+	GetProjectBySlug(ctx context.Context, slug string) (*v1.Project, error)
+
+	GetProjectsByQueryFilter(ctx context.Context, filter *v1.ProjectsQueryFilter) ([]*v1.Project, error)
+
+	CreateProject(ctx context.Context, project *v1.Project) (*v1.Project, error)
+	UpdateProject(ctx context.Context, project *v1.Project) error
+}
+
 type ProjectRepoImpl struct {
 	*gorm.DB
 }
@@ -100,20 +110,11 @@ func (repo ProjectRepoImpl) CreateProject(ctx context.Context, project_ *v1.Proj
 	return p.toProtoV1(), nil
 }
 
-func (repo ProjectRepoImpl) UpdateProject(ctx context.Context, project_ *v1.Project) (*v1.Project, error) {
-	var p = Project{
-		ID:          &project_.Id,
-		Slug:        project_.Slug,
-		Name:        project_.Name,
-		Description: project_.Description,
-		Tags:        project_.Tags,
-		VCSUrl:      project_.VcsUrl,
-	}
-
-	err := repo.Save(&p).Error
+func (repo ProjectRepoImpl) UpdateProject(ctx context.Context, project *v1.Project) error {
+	err := repo.Save(&project).Error
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return p.toProtoV1(), nil
+	return nil
 }
