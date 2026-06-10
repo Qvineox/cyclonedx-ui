@@ -11,6 +11,13 @@ import Badge from "react-bootstrap/Badge";
 import SunburstChart from "../components/sunburst/sunburst-graph.tsx";
 import {useSearchParams} from "react-router-dom";
 
+interface ICVESummary {
+    low: number
+    medium: number
+    high: number
+    critical: number
+}
+
 export function InspectPage() {
     document.title = "SBOM inspector"
 
@@ -23,6 +30,8 @@ export function InspectPage() {
     const [maxDepth, setMaxDepth] = useState<number>(12)
 
     const [billData, setBillData] = useState<ISBOMDecomposition | null>(null)
+
+    const [cveSummary, setCVESummary] = useState<ICVESummary>({} as ICVESummary)
 
     const handleFileChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
         if (evt.target.files && evt.target.files.length > 0) {
@@ -41,8 +50,31 @@ export function InspectPage() {
                     console.log("sbom file uploaded")
                     return response.json()
                 })
-                .then(data => {
+                .then((data: ISBOMDecomposition) => {
                     setBillData(data)
+
+                    let cveSummary_ = {
+                        low: 0,
+                        medium: 0,
+                        high: 0,
+                        critical: 0
+                    }
+
+                    data.vulnerabilities?.forEach((v) => {
+                        if (v.maxRating >= 7.0) {
+                            if (v.maxRating >= 9.0) {
+                                cveSummary_.critical++
+                            } else {
+                                cveSummary_.high++
+                            }
+                        } else if (v.maxRating >= 4.0) {
+                            cveSummary_.medium++
+                        } else {
+                            cveSummary_.low++
+                        }
+                    })
+
+                    setCVESummary(cveSummary_)
                 })
                 .catch(() => {
                     alert("failed to process SBOM file")
@@ -139,10 +171,16 @@ export function InspectPage() {
                                 <summary>
                                     Total CVEs count: {billData.vulnerabilities.length}
                                 </summary>
+                                {/*<ul>*/}
+                                {/*    {billData.vulnerabilities.map((vuln, i) => {*/}
+                                {/*        return <li key={i}>{vuln.id}</li>*/}
+                                {/*    })}*/}
+                                {/*</ul>*/}
                                 <ul>
-                                    {billData.vulnerabilities.map((vuln, i) => {
-                                        return <li key={i}>{vuln.id}</li>
-                                    })}
+                                    <li>Critical: {cveSummary.critical}</li>
+                                    <li>High: {cveSummary.high}</li>
+                                    <li>Medium: {cveSummary.medium}</li>
+                                    <li>Low: {cveSummary.low}</li>
                                 </ul>
                             </details>
                             :
