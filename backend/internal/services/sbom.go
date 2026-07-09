@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"github.com/Qvineox/cyclonedx-ui/internal/db"
-	"github.com/google/uuid"
-	"gorm.io/datatypes"
 	"log/slog"
 	"path/filepath"
 	"slices"
 	"time"
+
+	"github.com/Qvineox/cyclonedx-ui/internal/db"
+	"github.com/google/uuid"
+	"gorm.io/datatypes"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/Qvineox/cyclonedx-ui/cfg"
@@ -257,8 +258,6 @@ func (service SBOMServiceImpl) Compare(ctx context.Context, options *sbom_v1.Com
 	// 4. count total amount of vulnerabilities, deduplicate
 
 	var graphs = make([]*nodes.DependencyGraph, len(options.Upload.Files))
-	var vulns = make([]cdx.Vulnerability, 0)
-
 	for i, sbom := range sboms {
 		var err error
 
@@ -266,8 +265,6 @@ func (service SBOMServiceImpl) Compare(ctx context.Context, options *sbom_v1.Com
 		if err != nil {
 			slog.Error("failed to build dependency graph", slog.String("error", err.Error()))
 			return nil, status.Error(codes.Internal, "failed to build dependency graph: "+err.Error())
-		} else {
-			vulns = append(vulns, graphs[i].Vulnerabilities...)
 		}
 
 		graphs[i], err = graphs[i].BuildCleanGraph(service.config.MinTransitiveSeverity, false, int(options.GetMaxDepth()))
@@ -299,12 +296,12 @@ func (service SBOMServiceImpl) Compare(ctx context.Context, options *sbom_v1.Com
 		return nil, status.Error(codes.Internal, "failed to create topological sort: "+err.Error())
 	}
 
-	for _, l := range leftTopologicalNodes {
-		for _, r := range rightTopologicalNodes {
-			if l.Component.PackageURL != "" && l.Component.PackageURL == r.Component.PackageURL {
-				identicalNodes = append(identicalNodes, l)
-			}
-		}
+	for left := range graphs[0].Nodes {
+		delete(graphs[0].Nodes, left)
+	}
+
+	for right := range graphs[1].Nodes {
+		delete(graphs[0].Nodes, right)
 	}
 
 	for _, l := range identicalNodes {
@@ -315,6 +312,68 @@ func (service SBOMServiceImpl) Compare(ctx context.Context, options *sbom_v1.Com
 		rightTopologicalNodes = slices.DeleteFunc(rightTopologicalNodes, func(node *nodes.Node) bool {
 			return node.Component.PackageURL == l.Component.PackageURL
 		})
+	}
+
+	slog.Info("finished sbom comparison",
+		slog.Group("left_sbom",
+			slog.Int("nodes_count", len(leftTopologicalNodes)),
+		),
+		slog.Group("right_sbom",
+			slog.Int("nodes_count", len(rightTopologicalNodes)),
+		),
+	)
+
+	var comparison = sbom_v1.SBOMComparison{
+		IdenticalComponents: make([]*sbom_v1.Component, len(identicalNodes)),
+		LeftComponent: &sbom_v1.ComparedSBOMInfo{
+			SerialNumber: &sboms[0].SerialNumber,
+			MetaData:     &sbom_v1.Meta{},
+		},
+		LeftUniqueComponents: make([]*sbom_v1.Component, len(leftTopologicalNodes)),
+		RightComponent: &sbom_v1.ComparedSBOMInfo{
+			SerialNumber: &sboms[0].SerialNumber,
+			MetaData:     &sbom_v1.Meta{},
+		},
+		RightUniqueComponents: make([]*sbom_v1.Component, len(rightTopologicalNodes)),
+	}
+
+	var uniqueVulnerabilities = make(map[string]*sbom_v1.Vulnerability)
+
+	for i := range identicalNodes {
+		comparison.IdenticalComponents[i] = identicalNodes[i].ToProtoV1()
+
+		if len(comparison.IdenticalComponents[i].Vulnerabilities) > 0 {
+			for _, v := range comparison.IdenticalComponents[i].Vulnerabilities {
+				uniqueVulnerabilities[v.Id] = v
+			}
+		}
+	}
+
+	for i := range leftTopologicalNodes {
+		comparison.LeftUniqueComponents[i] = leftTopologicalNodes[i].ToProtoV1()
+
+		if len(comparison.LeftUniqueComponents[i].Vulnerabilities) > 0 {
+			for _, v := range comparison.LeftUniqueComponents[i].Vulnerabilities {
+				uniqueVulnerabilities[v.Id] = v
+			}
+		}
+	}
+
+	for i := range rightTopologicalNodes {
+		comparison.RightUniqueComponents[i] = rightTopologicalNodes[i].ToProtoV1()
+
+		if len(comparison.RightUniqueComponents[i].Vulnerabilities) > 0 {
+			for _, v := range comparison.RightUniqueComponents[i].Vulnerabilities {
+				uniqueVulnerabilities[v.Id] = v
+			}
+		}
+	}
+
+	comparison.Vulnerabilities = make([]*sbom_v1.Vulnerability, len(uniqueVulnerabilities))
+	var i = 0
+	for _, v := range uniqueVulnerabilities {
+		comparison.Vulnerabilities[i] = v
+		i++
 	}
 
 	//var leftUniquePURLs = make([]string, 0)
@@ -361,5 +420,5 @@ func (service SBOMServiceImpl) Compare(ctx context.Context, options *sbom_v1.Com
 	//	}
 	//}
 
-	return nil, nil
+	return &comparison, nil
 }

@@ -23,6 +23,33 @@ export async function DecomposeSBOMFile(file: File, onlyVulnerable: boolean, max
     })
 }
 
+export async function CompareSBOMFiles(leftFile: File, rightFile: File): Promise<Response> {
+    const file1: string = await blobToBase64(leftFile)
+    const file2: string = await blobToBase64(rightFile)
+
+    return fetch((import.meta.env.VITE_BACKEND_HOST || "") + "/api/v1/sbom/compare", {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            upload: {
+                files: [
+                    {
+                        data: file1.split(',')[1],
+                        fileName: leftFile.name
+                    },
+                    {
+                        data: file2.split(',')[1],
+                        fileName: rightFile.name
+                    }
+                ],
+            }
+        } as IDecomposeOptions)
+    })
+}
+
 function blobToBase64(blob: File): Promise<string> {
     return new Promise((resolve, _) => {
         const reader = new FileReader();

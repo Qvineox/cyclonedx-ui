@@ -35,6 +35,17 @@ export interface ISBOMDecomposition {
     dependencyCycles?: Array<IDependencyCycle>
 }
 
+export interface ISBOMComparison {
+    leftComponent: IComponent;
+    rightComponent: IComponent;
+
+    identicalComponents?: Array<IComponent>
+    leftUniqueComponents?: Array<IComponent>
+    rightUniqueComponents?: Array<IComponent>
+
+    vulnerabilities?: Array<IVulnerability>
+}
+
 export interface IComponent {
     name: string
 

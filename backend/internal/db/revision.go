@@ -63,8 +63,7 @@ func (r Revision) toProtoV1() *v1.Revision {
 	}
 
 	if !r.SBOMFileUUID.IsNil() {
-		uuid_ := r.SBOMFileUUID.String()
-		r_.SbomFileUuid = &uuid_
+		r_.SbomFileUuid = new(r.SBOMFileUUID.String())
 	}
 
 	return &r_

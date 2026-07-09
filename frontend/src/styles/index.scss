@@ -68,17 +68,21 @@ nav#sidebar {
   }
 }
 
+.inspect-page, .compare-page {
+
+    width: 99vw;
+
+    grid-column-gap: 2vw;
+    grid-row-gap: 1vh;
+
+    padding: 2vh 0 0 max(70px, 4vw);
+}
+
 .inspect-page {
   display: grid;
-  width: 99vw;
 
   grid-template-columns: 25vw repeat(2, auto);
   grid-template-rows: auto repeat(4, auto);
-
-  grid-column-gap: 2vw;
-  grid-row-gap: 1vh;
-
-  padding: 2vh 0 0 max(70px, 4vw);
 
   #sbom-upload {
     grid-area: 1 / 1 / 2 / 2;
@@ -233,4 +237,77 @@ nav#sidebar {
       }
     }
   }
+}
+
+.compare-page {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 10vw repeat(4, 1fr);
+
+    #sbom-upload {
+        grid-column: span 2 / span 2;
+    }
+
+    .identical-components {
+        grid-column: span 2 / span 2;
+        height: 20vh;
+    }
+
+    .sbom-comparison {
+        width: 45vw;
+
+        ul {
+            padding: 10px;
+
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+
+            gap: 4px;
+
+            list-style: none;
+
+            li {
+                background-color: whitesmoke;
+                padding: 2px 4px;
+
+                &.critical {
+                  background-color: colors.$graph-severity-critical-color !important;
+                }
+
+                &.high {
+                  background-color: colors.$graph-severity-high-color !important;
+                }
+
+                &.medium {
+                  background-color: colors.$graph-severity-medium-color !important;
+                }
+
+                &.low {
+                  background-color: colors.$graph-severity-low-color !important;
+                }
+            }
+        }
+
+
+        &_left {
+            grid-row: span 2 / span 2;
+            grid-row-start: 2;
+
+            min-height: 20vh;
+        }
+
+        &_right {
+            grid-row: span 2 / span 2;
+            grid-row-start: 2;
+
+            min-height: 20vh;
+        }
+    }
+
+    #vulnerabilities {
+        grid-column: span 2 / span 2;
+        grid-row-start: 4;
+    }
 }

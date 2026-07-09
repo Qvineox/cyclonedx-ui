@@ -466,7 +466,7 @@ func (g *DependencyGraph) BuildCleanGraph(minTransitiveSeverity float64, vulnera
 
 	return &DependencyGraph{
 		Root:             cleanRoot,
-		Nodes:            nodes,
+		Nodes:            g.Nodes,
 		Vulnerabilities:  g.Vulnerabilities,
 		TotalNodes:       totalNodes,
 		TopologicalOrder: topologicalRefs,
