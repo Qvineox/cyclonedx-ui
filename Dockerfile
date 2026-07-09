@@ -1,4 +1,4 @@
-FROM node:24-alpine3.21 AS fe
+FROM node:26-alpine3.24 AS fe
 LABEL authors="lysak.yaroslav00@yandex.ru"
 
 WORKDIR /app
@@ -10,7 +10,7 @@ COPY frontend /app
 
 RUN npm run build
 
-FROM golang:1.24.2 AS be
+FROM golang:1.26.2 AS be
 LABEL authors="lysak.yaroslav00@yandex.ru"
 
 RUN go env -w CGO_ENABLED=0
@@ -29,7 +29,7 @@ RUN mkdir /app/pkg/frontend/swagger && cp /app/gen/go/apidocs.swagger.json /app/
 
 RUN go build -ldflags '-s -w' -o /app/bin/build .
 
-FROM alpine:3.21.3 as s
+FROM alpine:3.24.1 as s
 LABEL authors="lysak.yaroslav00@yandex.ru"
 
 RUN addgroup -S appuser && adduser -S appuser -G appuser -H -D
