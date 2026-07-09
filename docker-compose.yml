@@ -42,7 +42,7 @@ services:
       SRV_GRPC_ENABLE: true
       SRV_GRPC_REFLECT: true
 
-      DB_ENABLE: true
+      DB_ENABLE: false
       DB_HOST: 0.0.0.0
       DB_PORT: $PG_PORT
       DB_USER: $PG_USER
@@ -78,8 +78,8 @@ services:
       POSTGRES_USER: $PG_USER
       POSTGRES_PASSWORD: $PG_PASS
       PGPORT: $PG_PORT
-    ports:
-      - "5432:5432"
+    expose:
+      - 5432
     volumes:
       - database-data:/var/lib/postgresql/data
     healthcheck:

@@ -2,10 +2,12 @@
 .run
 backend/test/examples
 node_modules
-dist
 deps.slices.json
 
 /backend/pkg/frontend/swagger/swagger.json
+/backend/pkg/frontend/dist/assets
+/backend/pkg/frontend/dist/index.html
+/backend/pkg/frontend/dist/*.svg
 
 *.cdx.*
 
